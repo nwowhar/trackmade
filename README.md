@@ -1,4 +1,21 @@
-# TrackMade website + Strava connect
+# TrackMade website
+
+**Switching on orders (Supabase, Stripe, Resend): see [SETUP.md](SETUP.md).**
+
+```
+public/index.html        the shop (built from site-src/ by: python3 site-src/build.py)
+public/order.html        the customer's order page (/order/TM-1001?t=…): status, photo, approve / request a change
+public/admin.html        your dashboard (/admin): orders by status, GPX download, send confirmation, ship
+api/order.js             checkout, custom requests, the order page's data, approve / changes
+api/stripe-webhook.js    Stripe confirms payment -> order becomes "New", emails go out
+api/admin.js             dashboard + TrackMade Studio API (password cookie or Bearer ADMIN_API_KEY)
+api/strava/*.js          Strava connect
+lib/                     orders, database, Stripe, emails, prices and shipping (lib/config.js)
+supabase/schema.sql      the database, paste into Supabase's SQL editor once
+dev/server.js            run it all on your PC with stand-ins for Stripe, Supabase and email
+```
+
+## Strava connect
 
 The shop page (`public/index.html`) plus four small server functions that let a customer tap
 **Connect with Strava**, tick their activities (private ones too, multi-day trips as several ticks), and load the

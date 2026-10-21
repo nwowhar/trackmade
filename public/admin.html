@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>TrackMade orders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f1efea;--card:#fff;--ink:#1d2125;--muted:#6b7782;--line:#e2dfd8;--accent:#c8302a;--ok:#2f7a4f;--soft:#f7f6f3;--warn:#b26a00}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px 16px 80px}
+h1,h2,h3{font-family:Sora,system-ui,sans-serif;margin:0;line-height:1.2}
+h1{font-size:20px}h2{font-size:18px}h3{font-size:14px;margin:18px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+header{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:12px}
+header img{height:30px}
+.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 1px 0 var(--line)}
+input,textarea,select{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;background:#fff}
+textarea{min-height:80px}
+button{font:600 14px Sora,sans-serif;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;background:var(--ink);color:#fff}
+button.red{background:var(--accent)}button.soft{background:var(--soft);color:var(--ink)}button:disabled{opacity:.5}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.tabs button{background:var(--card);color:var(--ink);box-shadow:0 0 0 1.5px var(--line)}
+.tabs button.on{background:var(--ink);color:#fff;box-shadow:none}
+.tabs b{font-weight:600;opacity:.6;margin-left:4px}
+.list{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:92px 1fr auto;gap:4px 12px;align-items:center;background:var(--card);border-radius:12px;padding:12px 14px;cursor:pointer;box-shadow:0 1px 0 var(--line)}
+.row:hover{box-shadow:0 0 0 1.5px var(--ink)}
+.row .ref{font:700 14px Sora,sans-serif}.row .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .sub{grid-column:2/4;color:var(--muted);font-size:13px}
+.pill{font:600 12px Sora,sans-serif;padding:4px 9px;border-radius:99px;background:var(--soft);white-space:nowrap}
+.pill.you{background:#fbe9e7;color:var(--accent)}.pill.wait{background:#eef3f8;color:#36506b}.pill.done{background:#e8f3ec;color:var(--ok)}
+.late{color:var(--accent);font-weight:600}.soon{color:var(--warn);font-weight:600}
+.empty{color:var(--muted);text-align:center;padding:40px 0}
+.banner{background:#fff6e5;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:14px}
+#detail{position:fixed;inset:0;background:rgba(20,22,25,.45);display:flex;justify-content:flex-end;z-index:5}
+#detail .panel{width:min(560px,100%);height:100%;overflow:auto;background:var(--bg);padding:16px 16px 60px}
+dl{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;margin:0}dt{color:var(--muted)}dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.hist{list-style:none;padding:0;margin:0;font-size:13px}.hist li{padding:6px 0;border-bottom:1px solid var(--line)}.hist time{color:var(--muted);margin-right:8px}
+.msg{padding:10px 12px;border-radius:10px;margin:10px 0;background:#e8f3ec}.msg.err{background:#fbe9e7}
+img.prev{width:100%;border-radius:10px;display:block;margin:8px 0}
+.note{background:var(--soft);border-radius:10px;padding:10px 12px}
+#login{max-width:360px;margin:12vh auto}
+[hidden]{display:none!important}
+</style>
+<main>
+  <section id="login" class="card" hidden>
+    <img src="/email-logo.png" alt="TrackMade" style="height:36px;margin-bottom:12px">
+    <h1>Orders</h1>
+    <form id="loginForm" style="margin-top:14px;display:grid;gap:10px">
+      <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required>
+      <button class="red">Log in</button>
+      <div class="msg err" id="loginErr" hidden></div>
+    </form>
+  </section>
+  <section id="app" hidden>
+    <header><img src="/email-logo.png" alt="TrackMade"><div style="display:flex;gap:8px"><button class="soft" id="refresh">Refresh</button><button class="soft" id="logout">Log out</button></div></header>
+    <div class="banner" id="setup" hidden></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="list" id="list"></div>
+  </section>
+  <div id="detail" hidden><div class="panel" id="panel"></div></div>
+</main>
+<script>
+(()=>{const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SIZE={mini:'Mini 150',classic:'Classic 200',sig:'Signature 250',custom:'Custom'};
+const TABS=[['you','Needs you',['request','new','changes_requested','approved','printing','packed']],['wait','Waiting',['preview_sent','shipped']],['done','Done',['delivered','cancelled']],['all','All',null]];
+let ST={},orders=[],tab='you';
+const kind=s=>['request','new','changes_requested','approved','printing','packed'].includes(s)?'you':(['preview_sent','shipped'].includes(s)?'wait':'done');
+const day=d=>d?new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short'}):'';
+const when=d=>d?new Date(d).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'';
+async function api(a,body,method){const r=await fetch('/api/admin?a='+a,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{method:method||'GET'});
+  const j=await r.json().catch(()=>({}));if(r.status===401&&a!=='login'){showLogin();throw new Error('Log in')}if(!r.ok)throw new Error(j.error||'Something went wrong');return j}
+function showLogin(){$('login').hidden=false;$('app').hidden=true;$('detail').hidden=true}
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginErr').hidden=true;
+  try{await api('login',{password:$('pw').value});$('pw').value='';start()}catch(err){$('loginErr').hidden=false;$('loginErr').textContent=err.message}};
+$('logout').onclick=async()=>{await api('logout',{});showLogin()};
+$('refresh').onclick=()=>loadList();
+async function start(){
+  let me;try{me=await api('me')}catch(e){return}
+  ST=me.statuses;$('login').hidden=true;$('app').hidden=false;
+  const off=Object.entries({db:'Order database (Supabase)',stripe:'Payments (Stripe)',email:'Emails (Resend)'}).filter(([k])=>!me.live[k]).map(([,v])=>v);
+  $('setup').hidden=!off.length;$('setup').innerHTML=off.length?`<b>Not connected yet:</b> ${off.join(', ')}. Orders and emails are stand-ins until these are set up.`:'';
+  await loadList();openFromHash();
+}
+async function loadList(){const j=await api('list');orders=j.orders;renderTabs();renderList()}
+function renderTabs(){$('tabs').innerHTML=TABS.map(([k,n,ss])=>`<button data-k="${k}" class="${k===tab?'on':''}">${n}<b>${orders.filter(o=>!ss||ss.includes(o.status)).length}</b></button>`).join('');
+  $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=b.dataset.k;renderTabs();renderList()})}
+function due(o){if(!o.ship_by||['shipped','delivered','cancelled','request'].includes(o.status))return'';const d=(Date.parse(o.ship_by)-Date.now())/864e5;
+  return d<0?`<span class="late">${Math.ceil(-d)} days late</span>`:(d<=3?`<span class="soon">Ship by ${day(o.ship_by)}</span>`:`Ship by ${day(o.ship_by)}`)}
+function renderList(){const ss=TABS.find(t=>t[0]===tab)[2];const L=orders.filter(o=>!ss||ss.includes(o.status));
+  if(!L.length){$('list').innerHTML=`<div class="empty">Nothing here${tab==='you'?'. Nice.':'.'}</div>`;return}
+  $('list').innerHTML=L.map(o=>`<div class="row" data-ref="${esc(o.ref)}"><span class="ref">${esc(o.ref)}</span><span class="t">${esc(o.title||o.request_text||'(no title)')}</span>
+   <span class="pill ${kind(o.status)}">${esc((ST[o.status]||{}).label||o.status)}</span>
+   <span class="sub">${esc(SIZE[o.size]||o.size)} · ${esc(o.customer_name||o.email)} · ${day(o.created_at)} ${due(o)?' · '+due(o):''}</span></div>`).join('');
+  $('list').querySelectorAll('.row').forEach(r=>r.onclick=()=>{location.hash=r.dataset.ref})}
+window.addEventListener('hashchange',openFromHash);
+function openFromHash(){const ref=decodeURIComponent(location.hash.slice(1));if(!ref){$('detail').hidden=true;return}open(ref)}
+$('detail').onclick=e=>{if(e.target.id==='detail')history.pushState('',document.title,location.pathname),$('detail').hidden=true};
+async function open(ref){$('detail').hidden=false;$('panel').innerHTML='<p>Loading…</p>';
+  let j;try{j=await api('get&ref='+encodeURIComponent(ref))}catch(e){$('panel').innerHTML=`<p>${esc(e.message)}</p>`;return}
+  const o=j.order,a=o.shipping_address||{};
+  const addr=[a.line1,a.line2,[a.city,a.state,a.postal_code].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  const next={new:['printing'],changes_requested:[],approved:['printing'],printing:['packed'],packed:['shipped'],shipped:['delivered'],preview_sent:['approved'],request:[]}[o.status]||[];
+  $('panel').innerHTML=`
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2>${esc(o.ref)} <span class="pill ${kind(o.status)}">${esc((ST[o.status]||{}).label||o.status)}</span></h2><button class="soft" id="close">Close</button></div>
+  <div id="pmsg"></div>
+  <h3>Model</h3><dl>
+   <dt>Size</dt><dd>${esc(SIZE[o.size]||o.size)}${o.amount_total?` · paid A$${esc(o.amount_total)}`:''}</dd>
+   ${o.title?`<dt>Title</dt><dd>${esc(o.title)}</dd>`:''}${o.subtitle?`<dt>Details</dt><dd>${esc(o.subtitle)}</dd>`:''}
+   ${o.font?`<dt>Lettering</dt><dd>${esc(o.font)}</dd>`:''}
+   <dt>Track</dt><dd>${esc(o.source)}${o.strava_ids?` · ${o.strava_ids.length} Strava activities`:''}${o.track_points?` · ${o.track_points.toLocaleString()} points`:''}</dd>
+   ${o.link?`<dt>Link</dt><dd><a href="${esc(o.link)}" target="_blank" rel="noopener noreferrer">${esc(o.link)}</a></dd>`:''}
+   ${o.ship_by?`<dt>Ship by</dt><dd>${day(o.ship_by)} ${due(o)&&due(o).includes('late')?due(o):''}</dd>`:''}
+  </dl>
+  ${o.request_text?`<h3>Their idea</h3><div class="note">${esc(o.request_text)}</div>`:''}
+  ${o.customer_note?`<h3>Customer note</h3><div class="note">${esc(o.customer_note)}</div>`:''}
+  <div class="acts" style="margin-top:12px">${j.track_url?`<a href="${esc(j.track_url)}" download="${esc(o.ref)}.gpx"><button>Download GPX</button></a>`:''}
+   <button class="soft" id="copyLink">Copy customer link</button></div>
+  <h3>Customer</h3><dl><dt>Name</dt><dd>${esc(o.customer_name||'')}</dd><dt>Email</dt><dd><a href="mailto:${esc(o.email)}">${esc(o.email)}</a></dd>
+   ${o.phone?`<dt>Phone</dt><dd>${esc(o.phone)}</dd>`:''}${addr?`<dt>Ship to</dt><dd>${esc(addr)}</dd>`:''}${o.shipping_name?`<dt>Postage</dt><dd>${esc(o.shipping_name)}</dd>`:''}</dl>
+  <h3>Order confirmation</h3>
+  ${o.preview_url?`<img class="prev" src="${esc(o.preview_url)}" alt="">${o.preview_note?`<div class="note">${esc(o.preview_note)}</div>`:''}<p class="muted">Sent ${when(o.preview_sent_at)}</p>`:''}
+  ${['new','changes_requested','preview_sent','request'].includes(o.status)?`<div class="card" style="display:grid;gap:8px">
+    <label>Photo of the model (Studio’s preview.png)<input type="file" id="img" accept="image/png,image/jpeg"></label>
+    <textarea id="pnote" placeholder="Optional note to the customer, e.g. I trimmed the crop slightly so the summit sits in the middle."></textarea>
+    <button class="red" id="sendPrev">${o.preview_url?'Send updated confirmation':'Send order confirmation'}</button></div>`:''}
+  <h3>Move it along</h3><div class="acts">${next.map(s=>`<button data-s="${s}" class="${s==='printing'?'red':''}">${esc((ST[s]||{}).label||s)}</button>`).join('')}
+   ${o.status!=='cancelled'&&o.status!=='delivered'?`<button class="soft" data-s="cancelled">Cancel order</button>`:''}</div>
+  <div id="shipBox" hidden class="card" style="margin-top:10px;display:grid;gap:8px"><input id="trk" placeholder="Australia Post tracking number"><button class="red" id="shipGo">Mark shipped and email tracking</button></div>
+  <h3>Your notes</h3><textarea id="anote">${esc(o.admin_note||'')}</textarea><div class="acts" style="margin-top:8px"><button class="soft" id="saveNote">Save note</button></div>
+  <h3>History</h3><ul class="hist">${(o.history||[]).slice().reverse().map(h=>`<li><time>${when(h.at)}</time>${esc(h.what)}</li>`).join('')}</ul>`;
+  const msg=(t,err)=>{$('pmsg').innerHTML=`<div class="msg${err?' err':''}">${esc(t)}</div>`};
+  $('close').onclick=()=>{history.pushState('',document.title,location.pathname);$('detail').hidden=true};
+  $('copyLink').onclick=()=>{navigator.clipboard.writeText(location.origin+j.customer_link).then(()=>msg('Customer link copied.'))};
+  $('saveNote').onclick=async()=>{try{await api('note',{ref:o.ref,note:$('anote').value});msg('Note saved.')}catch(e){msg(e.message,true)}};
+  $('panel').querySelectorAll('button[data-s]').forEach(b=>b.onclick=async()=>{const s=b.dataset.s;
+    if(s==='shipped'){$('shipBox').hidden=false;$('trk').focus();return}
+    if(s==='cancelled'&&!confirm('Cancel this order? Refund it in Stripe separately.'))return;
+    try{await api('status',{ref:o.ref,status:s});await loadList();open(o.ref)}catch(e){msg(e.message,true)}});
+  if($('shipGo'))$('shipGo').onclick=async()=>{try{await api('status',{ref:o.ref,status:'shipped',tracking_number:$('trk').value.trim()});await loadList();open(o.ref)}catch(e){msg(e.message,true)}};
+  if($('sendPrev'))$('sendPrev').onclick=async()=>{const f=$('img').files[0];if(!f){msg('Pick the photo first.',true);return}
+    $('sendPrev').disabled=true;try{const image=await shrink(f);await api('preview',{ref:o.ref,image,note:$('pnote').value});await loadList();open(o.ref)}
+    catch(e){msg(e.message,true);$('sendPrev').disabled=false}};
+}
+// photos go out as JPEG, max 1600 px, so emails stay light
+function shrink(file){return new Promise((ok,bad)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,1600/Math.max(img.width,img.height));
+  const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
+  x.drawImage(img,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',0.88))};img.onerror=()=>bad(new Error('That file isn’t an image.'));img.src=URL.createObjectURL(file)})}
+start();
+})();
+</script>
+</html>

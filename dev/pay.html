@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stand-in payment</title>
+<body style="font-family:system-ui;max-width:420px;margin:40px auto;padding:0 16px">
+<h2>Stand-in for Stripe's payment page</h2>
+<p>Only on your PC while Stripe isn't connected. The real site sends customers to Stripe here.</p>
+<label><input type="radio" name="s" value="15" checked> Standard post A$15</label><br>
+<label><input type="radio" name="s" value="25"> Express post A$25</label><br><br>
+<button id="pay" style="font-size:18px;padding:10px 18px">Pay (test)</button>
+<script>
+document.getElementById('pay').onclick=async()=>{const o=new URLSearchParams(location.search).get('order'),s=document.querySelector('input[name=s]:checked').value;
+ const r=await fetch(`/dev-api/pay?order=${o}&ship=${s}`,{method:'POST'});const j=await r.json();location.href=j.next};
+</script>

@@ -526,7 +526,7 @@ async function useTrack(pts,names,o){const msg=o.msg;
   if(name!=='Your trip')$('t-title').value=name.toUpperCase().slice(0,28);
   $('t-sub').value=[pts[0].t?dateRange(pts[0].t,pts[pts.length-1].t):null,`${km.toFixed(1)} KM`,isFinite(hi)?`HIGH POINT ${Math.round(hi)} M`:null].filter(Boolean).join(' · ');
   msg.className='ok-line';msg.textContent=`${o.count} ${o.count>1?o.units:o.unit} · ${km.toFixed(1)} km${segs.length>1?` · ${segs.length} days`:''}. Looks good.`;
-  S.source=o.source;o.after&&o.after();S.gpx=toGPX(pts,name);track('CustomizeProduct',{source:o.source});
+  S.source=o.source;o.after&&o.after();S.gpx=toGPX(pts,name);S.pts=pts;S.gpxName=name;track('CustomizeProduct',{source:o.source});
   $('vload').hidden=false;let grid,ok=true;
   try{grid=o.grid||await terrain(bounds)}catch(e){ok=false;grid={...bounds,w:40,h:Math.max(8,Math.round(40*hk/wk))};grid.z=new Float32Array(grid.w*grid.h)}
   $('vload').hidden=true;
@@ -676,7 +676,15 @@ $('checkout').addEventListener('click',()=>{
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){c.style.borderLeftColor='var(--accent)';c.innerHTML='Add your email so we can send your order confirmation.';$('email').focus();return}
   c.style.borderLeftColor='var(--ok)';
   track('InitiateCheckout',{value:S.size.price,currency:'AUD',content_name:S.size.n});
-  c.innerHTML=`<strong>Ready for checkout.</strong> On the live site this opens secure payment (card, Apple Pay, Google Pay) for A$${S.size.price} plus shipping, then emails ${esc(em)} a receipt.${S.source==='strava'?' Your Strava track is attached to the order.':''} Your order confirmation with the final 3D model follows within 2 days.`;
+  if(API===null){c.innerHTML=`<strong>Ready for checkout.</strong> On the live site this opens secure payment (card, Apple Pay, Google Pay) for A$${S.size.price} plus shipping, then emails ${esc(em)} a receipt.${S.source==='strava'?' Your Strava track is attached to the order.':''} Your order confirmation with the final 3D model follows within 2 days.`;return}
+  // the full track goes with the order (thinned if it's huge, so it fits in one upload)
+  let gpx=null;if((S.source==='file'||S.source==='strava')&&S.gpx){gpx=S.gpx;
+    if(gpx.length>3e6&&S.pts){const k=Math.ceil(gpx.length/2.6e6);gpx=toGPX(S.pts.filter((p,i)=>i%k===0||i===S.pts.length-1),S.gpxName||'Your trip')}}
+  const btn=$('checkout');btn.disabled=true;const was=btn.textContent;btn.textContent='Opening secure checkout…';c.innerHTML='Saving your order…';
+  fetch(API+'/api/order?a=create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    size:S.size.id,email:em,title:$('t-title').value,subtitle:$('t-sub').value,font:S.font,source:S.source,link:S.link||'',strava:S.strava||null,gpx})})
+   .then(r=>r.json().then(j=>{if(!r.ok)throw new Error(j.error||'Checkout didn’t start. Try again.');location.href=j.url}))
+   .catch(e=>{c.style.borderLeftColor='var(--accent)';c.textContent=e.message;btn.disabled=false;btn.textContent=was});
 });
 
 /* ---------- What's possible + fully custom ---------- */
@@ -688,7 +696,12 @@ $('c-send').addEventListener('click',()=>{const c=$('c-confirm'),em=$('c-email')
   if(w.length<8){c.style.borderLeftColor='var(--accent)';c.textContent='Tell us a little about what you’d like made.';$('c-what').focus();return}
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){c.style.borderLeftColor='var(--accent)';c.textContent='Add your email so we can send your preview and quote.';$('c-email').focus();return}
   c.style.borderLeftColor='var(--ok)';track('Lead',{content_name:'custom'});
-  c.innerHTML='<strong>Request ready.</strong> On the live site this sends your idea to us, and we reply to '+esc(em)+' with a 3D preview and a price within 2 days.'});
+  if(API===null){c.innerHTML='<strong>Request ready.</strong> On the live site this sends your idea to us, and we reply to '+esc(em)+' with a 3D preview and a price within 2 days.';return}
+  const b=$('c-send');b.disabled=true;c.textContent='Sending…';
+  fetch(API+'/api/order?a=request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,what:w,link:($('c-link')||{}).value||''})})
+   .then(r=>r.json().then(j=>{if(!r.ok)throw new Error(j.error||'That didn’t send. Try again.');
+     c.innerHTML='<strong>Sent!</strong> We’ll reply to '+esc(em)+' with a 3D preview and a price within 2 days.';$('c-what').value=''}))
+   .catch(e=>{c.style.borderLeftColor='var(--accent)';c.textContent=e.message;b.disabled=false})});
 
 sync();
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>loadSample('ebc',false));
