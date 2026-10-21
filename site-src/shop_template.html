@@ -1,0 +1,692 @@
+<title>TrackMade Shop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Your GPS track, made real. A terrain model of your hike, ride or race: the real mountains and valleys with your exact route set in.">
+<meta property="og:title" content="TrackMade · Your adventure, made real">
+<meta property="og:description" content="Send us your GPS track. We sculpt the real terrain from satellite data with your exact route set in. Made in Australia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Barlow+Condensed:wght@700&family=Roboto+Slab:wght@700&family=Nunito:wght@800&display=swap">
+<style>
+/* Layout: phone-first order flow from a social ad. Photo hero, one column of steps, a sticky price bar.
+   On wide screens the 3D preview sits left and sticks while the steps scroll on the right. */
+:root{
+  --bg:#f4f5f6; --card:#ffffff; --ink:#1f252b; --muted:#5d6872; --line:#dde1e5; --soft:#eef0f2;
+  --accent:#e8322a; --accent-ink:#ffffff; --ok:#2f7d4f; --stage:#e3e7ea;
+  --f-display:"Sora","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-data:"Sora","Segoe UI",system-ui,sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111518; --card:#191f24; --ink:#e9ecef; --muted:#9aa5ae; --line:#2b333a; --soft:#20272d;
+  --accent:#ff4d44; --accent-ink:#1a0806; --ok:#5cc28a; --stage:#0d1114; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111518; --card:#191f24; --ink:#e9ecef; --muted:#9aa5ae; --line:#2b333a; --soft:#20272d;
+  --accent:#ff4d44; --accent-ink:#1a0806; --ok:#5cc28a; --stage:#0d1114; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 96px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+.wrap{max-width:1120px;margin:0 auto}
+header.top{display:flex;align-items:center;justify-content:space-between;padding-block:12px}
+.logo{color:var(--ink);line-height:0}
+.logo svg{height:40px;width:auto}
+.ship{font-size:12.5px;color:var(--muted)}
+
+/* hero */
+.hero{display:grid;gap:16px;margin-top:4px}
+.hero-img{position:relative;border-radius:var(--r);overflow:hidden;background:var(--stage);aspect-ratio:1000/854;max-width:100%}
+.hero-img img{display:block;width:100%;height:100%;object-fit:cover}
+.hero-img .tag{position:absolute;left:10px;bottom:10px;background:rgba(15,18,20,.72);color:#fff;font-size:12px;padding:4px 9px;border-radius:99px}
+.hero h1{font-size:clamp(28px,7.4vw,46px);line-height:1.08;letter-spacing:-.01em;font-weight:700}
+.hero h1 span{color:var(--accent)}
+.hero p.lede{margin:10px 0 0;color:var(--muted);font-size:17px;max-width:46ch}
+.price-line{display:flex;align-items:baseline;gap:10px;margin-top:12px;flex-wrap:wrap}
+.price-line b{font-family:var(--f-display);font-size:24px}
+.price-line small{color:var(--muted)}
+.trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding:0;list-style:none}
+.trust li{font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 16px var(--f-body);background:var(--accent);color:var(--accent-ink);
+  border:0;border-radius:99px;padding:14px 22px;cursor:pointer;text-decoration:none;min-height:48px}
+.cta:focus-visible,button:focus-visible,input:focus-visible,label.opt:focus-within,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hero .cta{margin-top:16px}
+@media (min-width:900px){.hero{grid-template-columns:1.1fr 1fr;align-items:center;gap:40px;margin-top:12px}}
+
+/* photo strip */
+.strip{display:grid;grid-auto-flow:column;grid-auto-columns:78%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin-top:22px;padding-bottom:6px}
+.strip figure{margin:0;scroll-snap-align:start;border-radius:var(--r);overflow:hidden;background:var(--stage)}
+.strip img{display:block;width:100%;height:240px;object-fit:cover}
+.strip figcaption{font-size:12.5px;color:var(--muted);padding:7px 10px;background:var(--card)}
+@media (min-width:900px){.strip{grid-auto-flow:row;grid-template-columns:repeat(3,1fr);overflow:visible}.strip img{height:280px}}
+
+/* builder */
+.builder{margin-top:36px;display:grid;gap:16px}
+.builder > h2{font-size:26px}
+@media (min-width:900px){.builder{grid-template-columns:1.1fr 1fr;gap:28px;align-items:start}.builder > h2{grid-column:1/-1}
+  .viewer{position:sticky;top:16px}}
+.viewer{border-radius:var(--r);overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,var(--card),var(--stage));border:1px solid var(--line);position:relative;
+  aspect-ratio:4/3.4;max-width:100%}
+.viewer canvas{display:block;width:100%;height:100%;touch-action:pan-y}
+.viewer.live canvas{touch-action:none}
+.v-label{position:absolute;left:12px;top:10px;font-size:12px;color:var(--muted);font-family:var(--f-data);pointer-events:none;line-height:1.5}
+.v-label .v-pre{display:block;max-width:240px;font:400 11.5px/1.35 var(--f-body);margin-top:3px}
+.v-label b{display:block;font-family:var(--f-display);font-size:16px;color:var(--ink);letter-spacing:.01em}
+.v-hint{position:absolute;right:10px;bottom:10px;font:500 12.5px var(--f-body);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:6px 11px;cursor:pointer}
+.v-note{position:absolute;left:10px;right:10px;bottom:48px;font-size:12px;line-height:1.4;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:8px 10px}
+.v-load{position:absolute;inset:0;display:grid;place-items:center;font:500 13px var(--f-data);color:var(--muted);background:color-mix(in srgb,var(--stage) 70%,transparent)}
+.steps{display:grid;gap:14px;min-width:0}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px;min-width:0}
+.step h3{font-size:17px;display:flex;align-items:center;gap:10px}
+.step h3 i{font-style:normal;font:600 13px var(--f-data);width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--ink)}
+.step.done h3 i{background:var(--ok);color:#fff}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--soft);border-radius:10px;padding:4px}
+.seg button{font:500 13.5px var(--f-body);color:var(--ink);background:transparent;border:0;border-radius:7px;padding:9px 4px;cursor:pointer;min-height:40px}
+.seg button[aria-selected="true"]{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:18px 12px;text-align:center;cursor:pointer;background:var(--soft)}
+.drop strong{display:block}
+.drop small{color:var(--muted)}
+.drop.over{border-color:var(--accent)}
+.field{display:grid;gap:5px;font-size:13.5px;color:var(--muted)}
+.field input{font:500 16px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:11px 12px;width:100%;min-width:0}
+.field input.mono{font-family:var(--f-display);font-weight:600;font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+.hint{font-size:13px;color:var(--muted)}
+.ok-line{font-size:13.5px;color:var(--ok);font-weight:500}
+.err-line{font-size:13.5px;color:var(--accent);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.strava-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;border:0;border-radius:10px;background:#FC5200;color:#fff;font:700 16px var(--f-body);cursor:pointer;margin:6px 0 2px}
+.strava-btn:active{filter:brightness(.92)}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:16px 0 4px}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
+.sv-head{display:flex;align-items:center;gap:10px;font-size:14px;margin:6px 0 8px}.sv-head img{width:30px;height:30px;border-radius:50%;object-fit:cover}
+.sv-head .linkbtn{margin-left:auto}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;font:500 13px var(--f-body);cursor:pointer;padding:8px 0}
+.sv-list{display:flex;flex-direction:column;gap:2px;max-height:380px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:4px;background:var(--card)}
+.sv-row{display:grid;grid-template-columns:24px 56px 1fr;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer}
+.sv-row:hover{background:var(--soft)}.sv-row.off{opacity:.5;cursor:default}
+.sv-row input{width:20px;height:20px;margin:0;accent-color:#FC5200}
+.sv-row svg{width:56px;height:42px;background:var(--soft);border-radius:6px}
+.sv-row b{display:block;font-size:14.5px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv-row small{color:var(--muted);font-size:12.5px}
+.sv-row a{color:#FC5200;font-weight:600;font-size:12.5px;text-decoration:none;white-space:nowrap}
+.sv-pow{font-size:11px;color:var(--muted);text-align:right;margin:6px 0 0}
+#sv-use{margin-top:10px}
+.sv-range{margin:0 0 10px}.sv-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cta.ghost{background:var(--soft);color:var(--ink);border:1px solid var(--line);margin-bottom:12px}#sv-use:disabled{opacity:.5}
+.chip{font:500 14px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:99px;padding:8px 14px;cursor:pointer;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.sizes{display:grid;gap:8px}
+label.opt{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+label.opt:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+label.opt input{accent-color:var(--accent);width:18px;height:18px;margin:0}
+.opt .n{font-weight:600}
+.opt .d{display:block;font-size:13px;color:var(--muted);font-weight:400}
+.opt .p{font-family:var(--f-display);font-weight:600;font-size:18px;font-variant-numeric:tabular-nums}
+.swatches{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.fonts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:2px 0 14px}
+.fnt{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:10px 4px 8px;cursor:pointer;text-align:center;color:var(--ink);line-height:1.1}
+.fnt b{display:block;font-size:20px;letter-spacing:.02em}.fnt span{display:block;font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--f-body)}
+.fnt[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+@media (max-width:380px){.fonts{grid-template-columns:repeat(2,1fr)}}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.sw[aria-checked="true"]{box-shadow:0 0 0 2px var(--ink)}
+.swname{font-size:14px;color:var(--muted)}
+.summary{display:grid;gap:4px;font-size:14px;background:var(--soft);border-radius:10px;padding:12px}
+.summary div{display:flex;justify-content:space-between;gap:12px}
+.summary span:first-child{color:var(--muted)}
+.summary span:last-child{text-align:right;min-width:0;overflow-wrap:anywhere}
+.summary .tot{font-weight:600;border-top:1px solid var(--line);padding-top:6px;margin-top:4px}
+.confirm{border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:10px;padding:12px;font-size:14px}
+
+/* how + faq */
+/* What's possible */
+.possible{margin-top:40px}
+.possible > p{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.gal{display:grid;grid-auto-flow:column;grid-auto-columns:82%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin-top:16px;padding-bottom:8px}
+@media (min-width:900px){.gal{grid-auto-flow:row;grid-template-columns:repeat(3,1fr);overflow:visible}}
+.gcard{scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.gcard .gi{aspect-ratio:4/3;background:var(--stage);overflow:hidden}
+.gcard .gi img{display:block;width:100%;height:100%;object-fit:cover}
+.gcard .gi.ill{display:grid;place-items:center;background:linear-gradient(160deg,#1c2329,#11161a)}
+.gcard .gi.ill svg{width:70%;height:auto}
+.gcard .gb{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.gcard .k{font:600 12px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.gcard b{font-size:18px;line-height:1.25}
+.gcard span{color:var(--muted);font-size:14.5px;flex:1}
+.gcard button{align-self:flex-start;margin-top:8px;font:600 14.5px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer}
+.custom{margin-top:40px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px}
+.custom h2{margin:0}
+.custom p{margin:0;color:var(--muted)}
+.field textarea{font:500 16px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:11px 12px;width:100%;min-height:110px;resize:vertical}
+@media (min-width:900px){.custom{grid-template-columns:1fr 1fr;column-gap:24px}.custom .wide{grid-column:1/-1}}
+section.more{margin-top:40px;display:grid;gap:28px}
+.how{display:grid;gap:12px;counter-reset:s;padding:0;margin:14px 0 0;list-style:none}
+.how li{counter-increment:s;display:grid;grid-template-columns:36px 1fr;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.how li::before{content:counter(s);font:600 15px var(--f-display);width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.how b{display:block}
+.how span{color:var(--muted);font-size:14.5px}
+@media (min-width:900px){.how{grid-template-columns:repeat(3,1fr)}}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 14px}
+details+details{margin-top:8px}
+summary{cursor:pointer;font-weight:600;padding:13px 0;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::after{content:"+";color:var(--muted);font-weight:400}
+details[open] summary::after{content:"–"}
+details p,details ol{margin:0 0 14px;color:var(--muted);font-size:14.5px}
+details ol{padding-left:20px}
+footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
+
+/* sticky bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.bar .in{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bar .amt{font-family:var(--f-display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}
+.bar .what{font-size:12.5px;color:var(--muted)}
+.bar .cta{padding:12px 20px;white-space:nowrap}
+</style>
+
+<header class="top wrap">
+  <div class="logo" role="img" aria-label="TrackMade">__LOGO__</div>
+  <div class="ship"><a href="https://www.instagram.com/trackmade.co/" style="color:inherit;text-decoration:none">@trackmade.co</a> · Made in Australia</div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-img"><img src="__HERO__" alt="A white relief model of the Everest Base Camp valley with the trek route in red and the name on the base"><span class="tag">Everest Base Camp · 250 mm</span></div>
+    <div>
+      <h1>Your adventure, <span>made real.</span></h1>
+      <p class="lede">Send the GPS track from your hike, ride or race and we sculpt the real mountains and valleys from satellite data, with your exact route set in. No GPS file? No worries: pick a famous route.</p>
+      <div class="price-line"><b>From A$59</b><small>We confirm your 3D model with you before we make it</small></div>
+      <ul class="trust">
+        <li>Garmin · Strava · Komoot</li><li>No GPS file? No worries</li><li>Satellite elevation data</li><li>Your name and dates on the base</li>
+      </ul>
+      <a class="cta" href="#build" id="hero-cta">Design yours</a>
+    </div>
+  </section>
+
+  <div class="strip" aria-label="Photos of a finished model">
+    <figure><img src="__TOP__" alt="Top view of the Everest relief showing valleys and the red route" loading="lazy"><figcaption>Every valley from real elevation data</figcaption></figure>
+    <figure><img src="__SIDE__" alt="The relief on a kitchen bench" loading="lazy"><figcaption>250 mm Signature on the bench</figcaption></figure>
+    <figure><img src="__FOURTH__" alt="The relief with its numbered stop key along the base" loading="lazy"><figcaption>Numbered stops and dates on the base</figcaption></figure>
+  </div>
+
+  <section class="possible" id="possible">
+    <h2>What's possible</h2>
+    <p>Any adventure with a GPS track, at any scale. A seven-day trek, a city marathon, a lap of the whole country.</p>
+    <div class="gal">
+      <article class="gcard"><div class="gi"><img src="__G_EBC__" alt="Everest Base Camp terrain model with the red route set into the valley" loading="lazy"></div>
+        <div class="gb"><i class="k">Treks &amp; hikes</i><b>Everest Base Camp</b><span>7 days, 67.7 km. Your route slots into the real valleys, every camp numbered.</span><button type="button" data-go="ebc">Make one like this</button></div></article>
+      <article class="gcard"><div class="gi"><img src="__G_CHI__" alt="Chicago Marathon plaque with the street grid, Lake Michigan and the course in red" loading="lazy"></div>
+        <div class="gb"><i class="k">City marathons</i><b>Chicago Marathon</b><span>42.2 km through the street grid, beside the lake, with your name and finish time on the base. All seven Majors.</span><button type="button" data-go="chicago">Make one like this</button></div></article>
+      <article class="gcard"><div class="gi"><img src="__G_LAP__" alt="Lap of Australia model: the whole continent with the route around the coast" loading="lazy"></div>
+        <div class="gb"><i class="k">Road trips</i><b>Lap of Australia</b><span>__LAPKM__ km, Perth to Perth. The whole continent in relief with your route around it.</span><button type="button" data-go="lap">Make one like this</button></div></article>
+      <article class="gcard"><div class="gi"><img src="__G_TRAIL__" alt="Bibbulmun Track terrain model with the red route from Kalamunda to Albany" loading="lazy"></div>
+        <div class="gb"><i class="k">Long trails</i><b>Bibbulmun, Heysen, Larapinta</b><span>Your whole thru-hike on one piece, every town numbered, your dates on the base. Bibbulmun, Cape to Cape, Larapinta, Overland, Heysen and the Alps track are ready to go. Pick your dates in Strava and we grab every day.</span><button type="button" data-go="trails">See the trails</button></div></article>
+      <article class="gcard"><div class="gi ill"><svg viewBox="0 0 200 120" aria-hidden="true"><path d="M10 84 q12 -10 24 0 t24 0 t24 0" fill="none" stroke="#5aa0d8" stroke-width="5" stroke-linecap="round"/><path d="M82 84 L118 40 L150 66" fill="none" stroke="#ff4d44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 66 L190 66" fill="none" stroke="#f2a33a" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/></svg></div>
+        <div class="gb"><i class="k">Triathlon &amp; Ironman</i><b>Swim, bike and run</b><span>Kona, Busselton, Cairns, your local 70.3. Every leg on one piece, with your splits on the base.</span><button type="button" data-go="custom" data-pre="Triathlon: ">Ask about yours</button></div></article>
+      <article class="gcard"><div class="gi ill"><svg viewBox="0 0 200 120" aria-hidden="true"><path d="M14 92 C40 92 46 40 70 40 S96 78 112 70 150 18 186 24" fill="none" stroke="#ff4d44" stroke-width="5" stroke-linecap="round"/><circle cx="14" cy="92" r="7" fill="#fff"/><circle cx="186" cy="24" r="7" fill="#fff"/></svg></div>
+        <div class="gb"><i class="k">Fully custom</i><b>Anything with a track</b><span>A sailing passage, a ski season, your parkrun, a track-day lap, a whole year of rides. Tell us and we'll design it.</span><button type="button" data-go="custom">Request a custom piece</button></div></article>
+    </div>
+  </section>
+
+  <section class="builder" id="build">
+    <h2>Design yours</h2>
+    <div class="viewer" id="viewer" aria-label="3D preview">
+      <div class="v-label" id="vlabel"></div>
+      <div class="v-note" id="vnote" hidden></div>
+      <button class="v-hint" id="vhint" type="button">Tap to spin in 3D</button>
+      <div class="v-load" id="vload" hidden>Loading terrain…</div>
+    </div>
+
+    <div class="steps">
+      <div class="step" id="step1">
+        <h3><i>1</i>Your track</h3>
+        <p class="hint">Your own GPS track makes a fully personal model: your exact line, dates and distance. No GPS file? No worries, pick a route instead.</p>
+        <div class="seg" role="tablist" aria-label="Choose your track">
+          <button role="tab" id="tab-link" aria-selected="true" data-tab="link" type="button">Paste link</button>
+          <button role="tab" id="tab-file" aria-selected="false" data-tab="file" type="button">GPX file</button>
+          <button role="tab" id="tab-famous" aria-selected="false" data-tab="famous" type="button">No GPS file</button>
+        </div>
+        <div data-pane="link">
+          <p class="ok-line">Fully personal: your exact line, dates, distance and stops.</p>
+          <div class="strava" id="strava">
+            <button class="strava-btn" id="sv-connect" type="button">Connect with Strava</button>
+            <p class="hint" id="sv-intro">Tick any activity, private ones too. Long trip? Pick your first and last day and we'll grab every activity in between.</p>
+            <div id="sv-box" hidden>
+              <div class="sv-head"><img id="sv-img" alt="" hidden><span id="sv-who"></span><button class="linkbtn" id="sv-out" type="button">Disconnect</button></div>
+              <details class="sv-range" id="sv-range"><summary>Long trip? Pick your dates instead</summary>
+                <div class="sv-dates"><label class="field" for="sv-from">First day<input type="date" id="sv-from"></label><label class="field" for="sv-to">Last day<input type="date" id="sv-to"></label></div>
+                <button class="cta ghost" id="sv-range-go" type="button">Tick every activity in these dates</button>
+              </details>
+              <div class="sv-list" id="sv-list" role="group" aria-label="Your Strava activities"></div>
+              <button class="linkbtn" id="sv-more" type="button" hidden>Show older activities</button>
+              <button class="cta" id="sv-use" type="button" disabled>Tick an activity</button>
+              <p class="sv-pow">Powered by Strava</p>
+            </div>
+            <div id="sv-msg"></div>
+          </div>
+          <div class="or"><span>or paste a link</span></div>
+          <label class="field" for="link">Activity link from Strava, Garmin Connect, Komoot or AllTrails
+            <input id="link" type="url" inputmode="url" placeholder="https://www.strava.com/activities/…" autocomplete="off"></label>
+          <p class="hint">Easiest on a phone. Make the activity public or shareable. We pull the track and send an order confirmation with your 3D model before we make it.</p>
+          <div id="link-msg"></div>
+        </div>
+        <div data-pane="file" hidden>
+          <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose GPX files">
+            <strong>Choose .gpx files</strong><small>Multi-day trip? Select every day at once.</small>
+          </div>
+          <p class="ok-line">Fully personal: your exact line, dates, distance and stops.</p>
+          <input type="file" id="file" multiple hidden>
+          <div id="file-msg" class="hint">Your files stay on your phone until you order.</div>
+        </div>
+        <div data-pane="famous" hidden>
+          <p class="ok-line">No worries. Pick a famous route, or tell us your favourite.</p>
+          <div class="chips">
+            <button class="chip" data-s="ebc" aria-pressed="false" type="button">Everest Base Camp</button>
+            <button class="chip" data-s="kili" aria-pressed="false" type="button">Kilimanjaro</button>
+            <button class="chip" data-s="chicago" aria-pressed="false" type="button">Chicago Marathon</button>
+            <button class="chip" data-s="lap" aria-pressed="false" type="button">Lap of Australia</button>
+            <button class="chip" data-s="bibbulmun" aria-pressed="false" type="button">Bibbulmun Track</button><button class="chip" data-s="heysen" aria-pressed="false" type="button">Heysen Trail</button><button class="chip" data-s="overland" aria-pressed="false" type="button">Overland Track</button><button class="chip" data-s="larapinta" aria-pressed="false" type="button">Larapinta Trail</button><button class="chip" data-s="c2c" aria-pressed="false" type="button">Cape to Cape</button><button class="chip" data-s="aawt" aria-pressed="false" type="button">Australian Alps Walking Track</button><button class="chip" data-r="Munda Biddi Trail" aria-pressed="false" type="button">Munda Biddi</button><button class="chip" data-r="Kokoda Track" aria-pressed="false" type="button">Kokoda Track</button><button class="chip" data-r="Tour du Mont Blanc" aria-pressed="false" type="button">Tour du Mont Blanc</button><button class="chip" data-r="Inca Trail" aria-pressed="false" type="button">Inca Trail</button><button class="chip" data-r="Mt Kosciuszko" aria-pressed="false" type="button">Mt Kosciuszko</button>
+          </div>
+          <label class="field" for="routeReq">Can't see yours? Type any trail, ride, race or track and we'll build it
+            <input id="routeReq" type="text" placeholder="e.g. Bibbulmun Track, Albany to Walpole" autocomplete="off"></label>
+          <p class="hint">We build it from the official route and send an order confirmation with the 3D model before we make it.</p>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <h3><i>2</i>Size</h3>
+        <div class="sizes" role="radiogroup" aria-label="Size" id="sizes"></div>
+      </div>
+
+      <div class="step" id="step3">
+        <h3><i>3</i>Base text</h3>
+        <p class="hint">White terrain, scarlet red route, grey lettering. Water is inlaid in blue. Pick a font for the lettering:</p>
+        <div class="fonts" role="radiogroup" aria-label="Lettering font" id="fonts"></div>
+        <div class="swatches" role="radiogroup" aria-label="Route colour" id="swatches" hidden></div>
+        <label class="field" for="t-title">Title<input class="mono" id="t-title" maxlength="28" placeholder="EVEREST BASE CAMP"></label>
+        <label class="field" for="t-sub">Details line<input class="mono" id="t-sub" maxlength="60" placeholder="6–12 OCT 2025 · 67.7 KM"></label>
+      </div>
+
+      <div class="step" id="step4">
+        <h3><i>4</i>Checkout</h3>
+        <label class="field" for="email">Email for your order confirmation and tracking<input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></label>
+        <div class="summary" id="summary"></div>
+        <button class="cta" id="checkout" type="button">Continue to secure checkout</button>
+        <p class="hint">Pay with card, Apple Pay or Google Pay. We email an order confirmation with your final 3D model within 2 days. We only start making it once you approve.</p>
+        <div class="confirm" id="confirm" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="custom" id="custom">
+    <div class="wide"><h2>Fully custom</h2><p>Something that doesn't fit the boxes above? Describe it and we'll come back with a 3D preview and a price within 2 days.</p></div>
+    <label class="field wide" for="c-what">What would you like made?<textarea id="c-what" placeholder="e.g. Our 3-month lap of Australia, both of our names on the base, with the 12 places we stopped longest marked."></textarea></label>
+    <label class="field" for="c-link">Link or route (optional)<input id="c-link" type="text" placeholder="Strava, Garmin or Komoot link, or a route name" autocomplete="off"></label>
+    <label class="field" for="c-email">Your email<input id="c-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></label>
+    <div class="wide"><button class="cta" id="c-send" type="button">Send request</button><div class="confirm" id="c-confirm" hidden></div></div>
+  </section>
+
+  <section class="more">
+    <div>
+      <h2>How it works</h2>
+      <ol class="how">
+        <li><div><b>Send your track</b><span>A link or GPX file from your watch or app. No GPS file? Pick a famous route or ask for your favourite.</span></div></li>
+        <li><div><b>Approve your order confirmation</b><span>We set the crop, stops and text and email you the final 3D model. Change anything for free.</span></div></li>
+        <li><div><b>Made and shipped</b><span>Made to order in Australia, packed in foam, at your door within 14 days.</span></div></li>
+      </ol>
+    </div>
+    <div>
+      <h2>Questions</h2>
+      <div style="margin-top:14px">
+        <details><summary>How do I find my activity link?</summary>
+          <ol><li><b>Strava:</b> tap <b>Connect with Strava</b> in step 1 and tick your activities. Or open the activity → Share → Copy link.</li><li><b>Garmin Connect:</b> open the activity → ⋯ → Share → Copy link (set the activity to public first).</li><li><b>Komoot / AllTrails:</b> open the tour → Share → Copy link.</li></ol></details>
+        <details><summary>I don't have a GPS file. Can you still make one?</summary>
+          <p>No worries. Tap "No GPS file" in step 1 and pick a famous route, or type your favourite (for example "Bibbulmun Track, Albany to Walpole"). We build it from the official route and send an order confirmation with the 3D model.</p></details>
+        <details><summary>What are the sizes?</summary>
+          <p>Mini is 150 mm on the long side, Classic 200 mm and Signature 250 mm. Height depends on the terrain; big mountains stand 5–7 cm tall.</p></details>
+        <details><summary>What is it made of?</summary>
+          <p>Precision 3D printed in matte PLA, in layers 0.08–0.2 mm thin, then checked before it ships: white terrain, grey engraved text and a scarlet red slot-in route with numbered stops. Display it indoors and out of direct sun.</p></details>
+        <details><summary>Shipping and timing</summary>
+          <p>Ships Australia-wide with tracking. Order confirmation within 2 days, making takes 2–3 days after you approve, then 2–5 days in the post.</p></details>
+      </div>
+    </div>
+  </section>
+  <footer>TrackMade · Made in Australia · Instagram <a href="https://www.instagram.com/trackmade.co/" style="color:inherit">@trackmade.co</a></footer>
+</main>
+
+<div class="bar" id="bar"><div class="in">
+  <div><div class="amt" id="bar-amt">A$150</div><div class="what" id="bar-what">Signature · red route</div></div>
+  <button class="cta" id="bar-cta" type="button">Design yours</button>
+</div></div>
+
+<script type="application/json" id="samples">__SAMPLES__</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SAMPLES=JSON.parse($('samples').textContent);
+const SIZES=[{id:'mini',n:'Mini',mm:150,price:59,d:'150 mm · single colour route'},{id:'classic',n:'Classic',mm:200,price:99,d:'200 mm · slot-in route, numbered stops'},{id:'sig',n:'Signature',mm:250,price:150,d:'250 mm · slot-in route, stops, landmark dots'}];
+const COLOURS=[{id:'red',n:'Scarlet red',hex:'#c8302a'}]   // one route colour for now (Bambu PLA Matte Scarlet Red);
+const S={track:null,size:SIZES[2],colour:COLOURS[0],font:'Sora',source:'example',link:'',files:0,exag:1.5};
+
+/* ---- marketing pixel hook: replace with Meta Pixel / GA4 when live ---- */
+function track(ev,data){try{if(window.fbq)window.fbq('track',ev,data||{})}catch(e){}}
+track('ViewContent',{content_name:'TrackMade relief'});
+
+/* ---------- 3D viewer ---------- */
+const viewer=$('viewer');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+viewer.prepend(renderer.domElement);
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,1,5000);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enabled=false;controls.enablePan=false;controls.maxPolarAngle=Math.PI*0.47;controls.autoRotate=true;controls.autoRotateSpeed=0.6;
+scene.add(new THREE.HemisphereLight(0xffffff,0x8c949c,0.55));
+const sun=new THREE.DirectionalLight(0xffffff,0.85);sun.castShadow=true;sun.shadow.mapSize.set(1536,1536);sun.shadow.bias=-0.0006;scene.add(sun);scene.add(sun.target);
+const fill=new THREE.DirectionalLight(0xdfe8f0,0.25);fill.position.set(200,120,200);scene.add(fill);
+let model=null,dims=null,visible=true,dirty=true;
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduce)controls.autoRotate=false;
+controls.addEventListener('change',()=>dirty=true);
+function loop(){requestAnimationFrame(loop);if(!visible)return;if(controls.autoRotate||controls.enableDamping)controls.update();if(dirty||controls.autoRotate){renderer.render(scene,camera);dirty=false}}
+loop();
+new IntersectionObserver(e=>{visible=e[0].isIntersecting}).observe(viewer);
+function resize(){const r=viewer.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/Math.max(1,r.height);camera.updateProjectionMatrix();dirty=true}
+new ResizeObserver(resize).observe(viewer);
+$('vhint').addEventListener('click',()=>{const on=!controls.enabled;controls.enabled=on;controls.autoRotate=!on&&!reduce;viewer.classList.toggle('live',on);
+  $('vhint').textContent=on?'Done':'Tap to spin in 3D';});
+
+function kmDims(g){const kx=111.32*Math.cos((g.lat0+g.lat1)/2*Math.PI/180);return{wkm:(g.lon1-g.lon0)*kx,hkm:(g.lat1-g.lat0)*110.57}}
+function build(keepCam){
+  const t=S.track;if(!t)return;
+  if(model){scene.remove(model);model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){o.material.map&&o.material.map.dispose();o.material.dispose()}})}
+  model=new THREE.Group();scene.add(model);
+  const g=t.grid,{wkm,hkm}=kmDims(g),s=S.size.mm/Math.max(wkm,hkm),W=wkm*s,H=hkm*s,k=S.size.mm/250,base=12*k,zs=s/1000*S.exag;
+  const w=g.w,h=g.h,Y=new Float32Array(w*h);for(let i=0;i<w*h;i++)Y[i]=base+g.z[i]*zs;
+  dims={W,H,base,s,k,Y,w,h};
+  const white=new THREE.MeshStandardMaterial({color:0xf1f0ec,roughness:0.92});
+  const pos=new Float32Array(w*h*3);
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const q=(j*w+i)*3;pos[q]=-W/2+i/(w-1)*W;pos[q+1]=Y[j*w+i];pos[q+2]=-H/2+j/(h-1)*H}
+  const idx=[];for(let j=0;j<h-1;j++)for(let i=0;i<w-1;i++){const a=j*w+i,b=a+1,c=a+w,d=c+1;idx.push(a,c,b,b,c,d)}
+  const top=new THREE.BufferGeometry();top.setAttribute('position',new THREE.BufferAttribute(pos,3));top.setIndex(idx);top.computeVertexNormals();
+  if(t.lake!=null){const col=new Float32Array(w*h*3),L=new THREE.Color(0x587a92),Wc=new THREE.Color(0xf1f0ec);for(let i=0;i<w*h;i++){const c=t.grid.z[i]<t.lake?L:Wc;col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b}top.setAttribute('color',new THREE.BufferAttribute(col,3));white.vertexColors=true;white.color.set(0xffffff)}
+  const tm=new THREE.Mesh(top,white);tm.castShadow=tm.receiveShadow=true;model.add(tm);
+  const wp=[];const edge=p=>{for(let n=0;n<p.length-1;n++){const a=p[n],b=p[n+1];wp.push(a[0],a[1],a[2],a[0],0,a[2],b[0],b[1],b[2],b[0],b[1],b[2],a[0],0,a[2],b[0],0,b[2])}};
+  const P=(i,j)=>[-W/2+i/(w-1)*W,Y[j*w+i],-H/2+j/(h-1)*H];let e=[];
+  for(let i=w-1;i>=0;i--)e.push(P(i,0));edge(e);e=[];for(let i=0;i<w;i++)e.push(P(i,h-1));edge(e);
+  e=[];for(let j=0;j<h;j++)e.push(P(0,j));edge(e);e=[];for(let j=h-1;j>=0;j--)e.push(P(w-1,j));edge(e);
+  const wg=new THREE.BufferGeometry();wg.setAttribute('position',new THREE.Float32BufferAttribute(wp,3));wg.computeVertexNormals();
+  model.add(new THREE.Mesh(wg,new THREE.MeshStandardMaterial({color:0xeceae5,roughness:0.95,side:THREE.DoubleSide})));
+  const tp=new THREE.Mesh(new THREE.PlaneGeometry(W,base),new THREE.MeshBasicMaterial({map:textTexture(W,base),transparent:true}));
+  tp.position.set(0,base/2,H/2+0.06);tp.name='text';model.add(tp);
+  const mat=new THREE.MeshStandardMaterial({color:new THREE.Color(S.colour.hex),roughness:0.6});
+  const pts=t.route.map(([la,lo])=>{const[x,z]=xz(la,lo);return new THREE.Vector3(x,heightAt(x,z)+0.9*k,z)});
+  if(pts.length>1){const tube=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,false,'centripetal'),Math.min(3000,pts.length*3),1.2*k,6,false),mat);tube.castShadow=true;model.add(tube)}
+  if(S.size.id!=='mini')t.stops.forEach((st,i)=>{const[x,z]=xz(st.lat,st.lon);if(Math.abs(x)>W/2||Math.abs(z)>H/2)return;
+    const gy=heightAt(x,z),r=(t.lake!=null?2.0:2.6)*k*(i>=9?1.15:1),ph=(t.lake!=null?2.2:4.5)*k;
+    const c=new THREE.Mesh(new THREE.CylinderGeometry(r,r,ph+2,24),mat);c.position.set(x,gy+ph/2-1,z);c.castShadow=true;model.add(c);
+    const cap=new THREE.Mesh(new THREE.CircleGeometry(r*0.98,28),new THREE.MeshBasicMaterial({map:numTexture(st.label||i+1,S.colour.hex)}));
+    cap.rotation.x=-Math.PI/2;cap.position.set(x,gy+ph+0.03,z);model.add(cap)});
+  const D=Math.max(W,H);sun.position.set(-D*0.9,D*1.2,-D*0.6);
+  const sc=sun.shadow.camera;sc.left=-D;sc.right=D;sc.top=D;sc.bottom=-D;sc.near=1;sc.far=D*4;sc.updateProjectionMatrix();
+  if(!keepCam){const f=Math.max(1,Math.pow(1.15/camera.aspect,0.85));camera.position.set(D*0.22*f,D*0.95*f,D*1.5*f);controls.target.set(0,base,D*0.03);
+    controls.minDistance=D*0.4;controls.maxDistance=D*4;controls.update()}
+  $('vlabel').innerHTML=`<b>${esc(t.name)}</b>${esc(S.size.n)} · ${W.toFixed(0)} × ${H.toFixed(0)} mm<span class="v-pre">Preliminary 3D preview. We send an order confirmation with your final model before we make anything.</span>`;dirty=true;
+}
+function xz(lat,lon){const g=S.track.grid,d=dims;return[-d.W/2+(lon-g.lon0)/(g.lon1-g.lon0)*d.W,-d.H/2+(g.lat1-lat)/(g.lat1-g.lat0)*d.H]}
+function heightAt(x,z){const d=dims;let c=(x+d.W/2)/d.W*(d.w-1),r=(z+d.H/2)/d.H*(d.h-1);c=Math.max(0,Math.min(d.w-1.001,c));r=Math.max(0,Math.min(d.h-1.001,r));
+  const i=c|0,j=r|0,fc=c-i,fr=r-j,Y=d.Y,w=d.w;return(Y[j*w+i]*(1-fc)+Y[j*w+i+1]*fc)*(1-fr)+(Y[(j+1)*w+i]*(1-fc)+Y[(j+1)*w+i+1]*fc)*fr}
+const FONTS=[{id:'Sora',n:'Modern',css:'700 {px}px Sora,Arial,sans-serif'},
+  {id:'Barlow Condensed',n:'Condensed',css:'700 {px}px "Barlow Condensed",Arial Narrow,sans-serif'},
+  {id:'Roboto Slab',n:'Slab',css:'700 {px}px "Roboto Slab",Georgia,serif'},
+  {id:'Nunito',n:'Rounded',css:'800 {px}px Nunito,Arial,sans-serif'}];
+function fontOf(px){const f=FONTS.find(f=>f.id===S.font)||FONTS[0];return f.css.replace('{px}',px.toFixed(1))}
+function textTexture(W,base){const cw=Math.min(4096,Math.round(W*12)),ch=Math.round(cw*base/W),c=document.createElement('canvas');c.width=cw;c.height=ch;
+  const x=c.getContext('2d'),m=cw/W,k=S.size.mm/250;x.fillStyle='#4a4d50';x.textAlign='center';
+  const title=($('t-title').value||S.phTitle||'').toUpperCase(),sub=($('t-sub').value||S.phSub||'').toUpperCase();
+  let fs=7*k*m;x.font=fontOf(fs);while(x.measureText(title).width>cw*0.9&&fs>4)x.font=fontOf(fs*=0.94);x.fillText(title,cw/2,ch*0.5);
+  let f2=3.4*k*m;x.font=fontOf(f2);while(x.measureText(sub).width>cw*0.92&&f2>4)x.font=fontOf(f2*=0.94);x.fillText(sub,cw/2,ch*0.82);
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t}
+function numTexture(n,hex){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.fillStyle=hex;x.fillRect(0,0,128,128);
+  x.fillStyle='#3d3f42';x.textAlign='center';x.textBaseline='middle';x.font=`700 ${String(n).length>1?60:80}px Sora,Arial,sans-serif`;x.fillText(String(n),64,70);
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t}
+
+/* ---------- samples ---------- */
+function decode(gr){const b=atob(gr.b64),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);const q=new Uint16Array(u.buffer),z=new Float32Array(q.length);for(let i=0;i<q.length;i++)z[i]=q[i];return{...gr,z}}
+const CACHE={};
+function loadSample(key,asChoice){const s=SAMPLES[key];CACHE[key]=CACHE[key]||decode(s.grid);
+  S.track={name:s.name,grid:CACHE[key],route:s.route,stops:s.stops,lake:s.lake};S.exag=s.exag;
+  S.phTitle=s.title;S.phSub=s.sub.replace(/\s+·\s+/g,' · ');$('t-title').placeholder='e.g. '+S.phTitle;$('t-sub').placeholder='e.g. '+S.phSub;
+  if(asChoice){S.source='famous:'+s.name;$('t-title').value=s.title;$('t-sub').value=S.phSub;}
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',!!(asChoice&&c.dataset.s===key)));
+  $('vnote').hidden=true;build(false);sync()}
+
+/* ---------- step 1: tabs, link, file ---------- */
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==b.dataset.tab)}));
+document.querySelectorAll('.chip[data-s]').forEach(c=>c.addEventListener('click',()=>{loadSample(c.dataset.s,true);track('CustomizeProduct',{source:'famous'})}));
+function pickRoute(name){S.source='famous:'+name;document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.r===name));
+  $('t-title').value=name.toUpperCase().slice(0,28);$('t-sub').value='';
+  $('vnote').hidden=false;$('vnote').textContent='Preview shows an example. Your order confirmation will show the '+name+'.';
+  const m=model&&model.getObjectByName('text');if(m&&dims){m.material.map.dispose();m.material.map=textTexture(dims.W,dims.base);m.material.needsUpdate=true;dirty=true}
+  track('CustomizeProduct',{source:'route'});sync()}
+document.querySelectorAll('.chip[data-r]').forEach(c=>c.addEventListener('click',()=>pickRoute(c.dataset.r)));
+let rq;$('routeReq').addEventListener('input',e=>{clearTimeout(rq);const v=e.target.value.trim();rq=setTimeout(()=>{if(v)pickRoute(v)},400)});
+const LINK_RX=/(strava\.com|strava\.app\.link|garmin\.com|komoot\.(com|de)|alltrails\.com|ridewithgps\.com|plotaroute|wikiloc)/i;
+$('link').addEventListener('input',e=>{const v=e.target.value.trim();S.link=v;const m=$('link-msg');
+  if(!v){m.innerHTML='';if(S.source==='link')S.source='example';sync();return}
+  if(LINK_RX.test(v)){S.source='link';m.innerHTML='<p class="ok-line">Got it. We’ll pull this track and send your order confirmation.</p>'}
+  else if(/^https?:\/\//i.test(v)){S.source='link';m.innerHTML='<p class="hint">We’ll check this link by hand. If it isn’t public we’ll email you.</p>'}
+  else{S.source='link';m.innerHTML='<p class="hint">No link? A route name works too, e.g. “Overland Track, 6 days”.</p>'}
+  sync()});
+const drop=$('drop'),file=$('file');
+drop.addEventListener('click',()=>file.click());
+drop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();file.click()}});
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+drop.addEventListener('drop',e=>handleFiles(e.dataTransfer.files));
+file.addEventListener('change',()=>{handleFiles(file.files);file.value=''});
+function hav(a,b){const R=6371,dl=(b.lat-a.lat)*Math.PI/180,dn=(b.lon-a.lon)*Math.PI/180,x=Math.sin(dl/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+function dateRange(a,b){const A=new Date(a),B=new Date(b);if(A.toDateString()===B.toDateString())return`${A.getDate()} ${MON[A.getMonth()]} ${A.getFullYear()}`;
+  if(A.getMonth()===B.getMonth()&&A.getFullYear()===B.getFullYear())return`${A.getDate()}–${B.getDate()} ${MON[A.getMonth()]} ${A.getFullYear()}`;
+  return`${A.getDate()} ${MON[A.getMonth()]} – ${B.getDate()} ${MON[B.getMonth()]} ${B.getFullYear()}`}
+async function handleFiles(list){
+  const files=[...list].filter(f=>/\.gpx$/i.test(f.name));const msg=$('file-msg');
+  if(!files.length){msg.className='err-line';msg.textContent='Those aren’t .gpx files. Paste the activity link instead, it’s easier on a phone.';return}
+  let pts=[],names=[];
+  for(const f of files){const x=new DOMParser().parseFromString(await f.text(),'application/xml');const nm=x.querySelector('trk > name, metadata > name');if(nm&&nm.textContent.trim())names.push(nm.textContent.trim());
+    x.querySelectorAll('trkpt, rtept').forEach(p=>{const t=p.querySelector('time'),e=p.querySelector('ele');pts.push({lat:+p.getAttribute('lat'),lon:+p.getAttribute('lon'),ele:e?+e.textContent:null,t:t?Date.parse(t.textContent):null})})}
+  pts=pts.filter(p=>isFinite(p.lat)&&isFinite(p.lon));
+  if(pts.length<2){msg.className='err-line';msg.textContent='No track found in that file. Try the activity link instead.';return}
+  await useTrack(pts,names,{msg,count:files.length,unit:'file',units:'files',source:'file',after:()=>{S.files=files.length;S.fileNames=files.map(f=>f.name)}});
+}
+async function useTrack(pts,names,o){const msg=o.msg;
+  if(pts.every(p=>p.t!=null))pts.sort((a,b)=>a.t-b.t);
+  let km=0,hi=-Infinity;for(let i=1;i<pts.length;i++)km+=hav(pts[i-1],pts[i]);pts.forEach(p=>{if(p.ele!=null&&p.ele>hi)hi=p.ele});
+  const segs=[[pts[0]]];for(let i=1;i<pts.length;i++){if(pts[i].t&&pts[i-1].t&&pts[i].t-pts[i-1].t>3*3600e3)segs.push([]);segs[segs.length-1].push(pts[i])}
+  const loop=hav(pts[0],pts[pts.length-1])<0.4;
+  let stops=[{lat:pts[0].lat,lon:pts[0].lon}];if(segs.length>1)segs.slice(0,-1).forEach(s=>stops.push({lat:s[s.length-1].lat,lon:s[s.length-1].lon}));
+  if(!loop)stops.push({lat:pts[pts.length-1].lat,lon:pts[pts.length-1].lon});stops=stops.slice(0,12);
+  let la0=1e9,la1=-1e9,lo0=1e9,lo1=-1e9;pts.forEach(p=>{la0=Math.min(la0,p.lat);la1=Math.max(la1,p.lat);lo0=Math.min(lo0,p.lon);lo1=Math.max(lo1,p.lon)});
+  const kx=111.32*Math.cos((la0+la1)/2*Math.PI/180);let wk=(lo1-lo0)*kx,hk=(la1-la0)*110.57;const pad=Math.max(1,0.15*Math.max(wk,hk));wk+=2*pad;hk+=2*pad;
+  if(hk<wk*0.6)hk=wk*0.6;if(wk<hk*0.6)wk=hk*0.6;const cla=(la0+la1)/2,clo=(lo0+lo1)/2;
+  const bounds={lat0:cla-hk/2/110.57,lat1:cla+hk/2/110.57,lon0:clo-wk/2/kx,lon1:clo+wk/2/kx};
+  const step=Math.max(0.012,km/1500),out=[[pts[0].lat,pts[0].lon]];let acc=0;for(let i=1;i<pts.length;i++){acc+=hav(pts[i-1],pts[i]);if(acc>=step){out.push([pts[i].lat,pts[i].lon]);acc=0}}
+  const name=names.length&&new Set(names).size===1?names[0]:'Your trip';
+  if(name!=='Your trip')$('t-title').value=name.toUpperCase().slice(0,28);
+  $('t-sub').value=[pts[0].t?dateRange(pts[0].t,pts[pts.length-1].t):null,`${km.toFixed(1)} KM`,isFinite(hi)?`HIGH POINT ${Math.round(hi)} M`:null].filter(Boolean).join(' · ');
+  msg.className='ok-line';msg.textContent=`${o.count} ${o.count>1?o.units:o.unit} · ${km.toFixed(1)} km${segs.length>1?` · ${segs.length} days`:''}. Looks good.`;
+  S.source=o.source;o.after&&o.after();S.gpx=toGPX(pts,name);track('CustomizeProduct',{source:o.source});
+  $('vload').hidden=false;let grid,ok=true;
+  try{grid=o.grid||await terrain(bounds)}catch(e){ok=false;grid={...bounds,w:40,h:Math.max(8,Math.round(40*hk/wk))};grid.z=new Float32Array(grid.w*grid.h)}
+  $('vload').hidden=true;
+  if(ok){let mx=0;for(const v of grid.z)mx=Math.max(mx,v);const rel=mx/1000*(S.size.mm/Math.max(wk,hk));S.exag=Math.min(10,Math.max(1.2,Math.round(S.size.mm*0.22/Math.max(rel,0.1)*10)/10))}else S.exag=1.5;
+  $('vnote').hidden=ok;if(!ok)$('vnote').textContent='Route loaded. You’ll see the mountains in your order confirmation.';
+  S.track={name:name,grid,route:out,stops};build(false);sync()}
+function toGPX(pts,name){const x=s=>String(s).replace(/[<&>"]/g,c=>({'<':'&lt;','&':'&amp;','>':'&gt;','"':'&quot;'}[c]));
+  return'<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="TrackMade" xmlns="http://www.topografix.com/GPX/1/1"><trk><name>'+x(name)+'</name><trkseg>\n'+
+  pts.map(p=>`<trkpt lat="${p.lat.toFixed(6)}" lon="${p.lon.toFixed(6)}">${p.ele!=null?`<ele>${(+p.ele).toFixed(1)}</ele>`:''}${p.t?`<time>${new Date(p.t).toISOString()}</time>`:''}</trkpt>`).join('\n')+'\n</trkseg></trk></gpx>\n'}
+
+/* ---------- Strava connect ----------
+   API is '' on the live site (same-origin /api/strava/*) and null in the offline demo build,
+   where sample activities stand in for a real Strava account. */
+const API=__API__;
+const SV={acts:[],page:1,sel:new Set(),busy:false};
+const svFmtDate=iso=>{const d=new Date(iso);return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'})};
+function svMsg(html,cls){const m=$('sv-msg');m.className=cls||'hint';m.innerHTML=html}
+function polyDecode(str){let i=0,lat=0,lon=0;const out=[];while(i<str.length){for(const k of[0,1]){let b,sh=0,r=0;do{b=str.charCodeAt(i++)-63;r|=(b&31)<<sh;sh+=5}while(b>=32);const d=r&1?~(r>>1):r>>1;if(k===0)lat+=d;else lon+=d}out.push([lat/1e5,lon/1e5])}return out}
+function svThumb(line){const p=Array.isArray(line)?line:polyDecode(line||'');if(p.length<2)return'<svg viewBox="0 0 56 42"></svg>';
+  let a=1e9,b=-1e9,c=1e9,d=-1e9;p.forEach(([la,lo])=>{a=Math.min(a,la);b=Math.max(b,la);c=Math.min(c,lo);d=Math.max(d,lo)});
+  const kx=Math.cos((a+b)/2*Math.PI/180),sw=(d-c)*kx||1e-6,sh=(b-a)||1e-6,sc=Math.min(46/sw,32/sh),ox=(56-sw*sc)/2,oy=(42-sh*sc)/2;
+  return`<svg viewBox="0 0 56 42" aria-hidden="true"><polyline fill="none" stroke="#FC5200" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${p.map(([la,lo])=>`${(ox+(lo-c)*kx*sc).toFixed(1)},${(oy+(b-la)*sc).toFixed(1)}`).join(' ')}"/></svg>`}
+function svRender(){const L=$('sv-list');
+  L.innerHTML=SV.acts.map(a=>`<label class="sv-row${a.gps?'':' off'}"><input type="checkbox" value="${esc(a.id)}" ${a.gps?'':'disabled'} ${SV.sel.has(a.id)?'checked':''}>${svThumb(a.line)}
+    <span><b>${esc(a.name)}</b><small>${esc(svFmtDate(a.local||a.start))} · ${esc(a.type)} · ${a.km.toFixed(1)} km${a.gain?` · ${a.gain} m up`:''}${a.gps?'':' · no GPS'}</small>
+    ${API===null?'':` <a href="https://www.strava.com/activities/${encodeURIComponent(a.id)}" target="_blank" rel="noopener">View on Strava</a>`}</span></label>`).join('')||'<p class="hint" style="padding:8px">No activities yet.</p>';
+  L.querySelectorAll('input').forEach(i=>i.addEventListener('change',()=>{i.checked?SV.sel.add(i.value):SV.sel.delete(i.value);svUseLabel()}));svUseLabel()}
+function svUseLabel(){const n=SV.sel.size,b=$('sv-use');b.disabled=!n||SV.busy;b.textContent=SV.busy?b.textContent:(n?`Use ${n} activit${n>1?'ies':'y'}`:'Tick an activity')}
+async function svFetch(path){if(API===null)return svDemo(path);const r=await fetch(API+path,{credentials:'same-origin'});const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error||'Strava error'),{status:r.status});return j}
+async function svLoad(page){const j=await svFetch('/api/strava/activities?page='+page);SV.page=page;
+  SV.acts=page===1?j.activities:SV.acts.concat(j.activities);
+  $('sv-box').hidden=false;$('sv-connect').hidden=true;$('sv-intro').hidden=true;
+  $('sv-who').textContent=(j.athlete&&j.athlete.name?j.athlete.name+'’s':'Your')+' activities';
+  if(j.athlete&&j.athlete.img&&/^https:/.test(j.athlete.img)){$('sv-img').src=j.athlete.img;$('sv-img').hidden=false}
+  $('sv-more').hidden=!j.more;svRender()}
+$('sv-connect').addEventListener('click',()=>{track('Lead',{step:'strava'});
+  if(API===null){svMsg('Demo: on the live site this opens Strava to sign in. Here are sample activities.');svLoad(1);return}
+  try{sessionStorage.setItem('tm_state',JSON.stringify({size:S.size.id,colour:S.colour.id,font:S.font,title:$('t-title').value,sub:$('t-sub').value,email:$('email').value}))}catch(e){}
+  location.href=API+'/api/strava/login?return='+encodeURIComponent(location.pathname+location.search)});
+async function svRange(){const f=$('sv-from').value,t=$('sv-to').value;
+  if(!f||!t){svMsg('Pick your first and last day.','err-line');return}
+  if(t<f){svMsg('The last day needs to be on or after the first.','err-line');return}
+  const a=Math.floor(Date.parse(f+'T00:00:00Z')/1000)-14*3600,b=Math.floor(Date.parse(t+'T23:59:59Z')/1000)+14*3600;   // ±14 h covers every time zone
+  svMsg('Finding your activities…');let got=[];
+  try{for(let pg=1;pg<=6;pg++){const j=await svFetch(`/api/strava/activities?after=${a}&before=${b}&per_page=100&page=${pg}`);got=got.concat(j.activities);if(!j.more)break}}
+  catch(e){svMsg(esc(e.message),'err-line');if(e.status===401)svReset();return}
+  const inR=got.filter(x=>{const d=(x.local||x.start).slice(0,10);return d>=f&&d<=t});
+  const have=new Set(SV.acts.map(x=>x.id));inR.forEach(x=>{if(!have.has(x.id))SV.acts.push(x)});
+  SV.acts.sort((x,y)=>Date.parse(y.start)-Date.parse(x.start));
+  SV.sel.clear();inR.filter(x=>x.gps).forEach(x=>SV.sel.add(x.id));svRender();
+  const n=SV.sel.size;
+  svMsg(n?`Ticked ${n} activit${n>1?'ies':'y'} from ${esc(svFmtDate(f))} to ${esc(svFmtDate(t))}. Untick any that weren’t part of the trip.`:'No GPS activities in those dates.',n?'ok-line':'err-line');
+  if(n)$('sv-use').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'})}
+$('sv-range-go').addEventListener('click',()=>{track('CustomizeProduct',{source:'strava-range'});svRange()});
+$('sv-more').addEventListener('click',()=>svLoad(SV.page+1).catch(e=>svMsg(esc(e.message),'err-line')));
+$('sv-out').addEventListener('click',async()=>{try{if(API!==null)await fetch(API+'/api/strava/logout',{method:'POST',credentials:'same-origin'})}catch(e){}
+  SV.acts=[];SV.sel.clear();$('sv-box').hidden=true;$('sv-connect').hidden=false;$('sv-intro').hidden=false;svMsg('Disconnected from Strava.')});
+$('sv-use').addEventListener('click',async()=>{const ids=SV.acts.filter(a=>SV.sel.has(a.id)).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));if(!ids.length)return;
+  SV.busy=true;const b=$('sv-use');b.disabled=true;let pts=[];const LONG=ids.length>12;
+  if(LONG)ids.forEach(a=>{const p=Array.isArray(a.line)?a.line:polyDecode(a.line||'');const t0=Date.parse(a.start),dur=(a.secs||6*3600)*1000;
+    p.forEach((q,i)=>pts.push({lat:q[0],lon:q[1],ele:null,t:t0+(p.length>1?i/(p.length-1):0)*dur}))});
+  else try{for(let i=0;i<ids.length;i++){b.textContent=`Loading ${i+1} of ${ids.length}…`;const a=ids[i],j=await svFetch('/api/strava/streams?id='+encodeURIComponent(a.id)),t0=Date.parse(a.start);
+      j.points.forEach(p=>pts.push({lat:p[0],lon:p[1],ele:p[2],t:p[3]!=null?t0+p[3]*1000:null}))}}
+  catch(e){SV.busy=false;svUseLabel();svMsg(esc(e.message||'Couldn’t load that activity.'),'err-line');if(e.status===401)svReset();return}
+  SV.busy=false;svUseLabel();
+  if(pts.length<2){svMsg('Those activities have no GPS track. Tick one recorded outdoors.','err-line');return}
+  const nm=ids.length===1?[ids[0].name]:[];
+  await useTrack(pts,nm,{msg:$('sv-msg'),count:ids.length,unit:'activity',units:'activities',source:'strava',grid:API===null?CACHE.ebc||(CACHE.ebc=decode(SAMPLES.ebc.grid)):null,
+    after:()=>{S.strava=ids.map(a=>a.id)}});
+  if(LONG)$('sv-msg').textContent+=' For a trip this long we use Strava’s route summary, which is plenty of detail at this scale.';
+  $('viewer').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})});
+function svReset(){$('sv-box').hidden=true;$('sv-connect').hidden=false;$('sv-intro').hidden=false}
+/* demo data: the EBC sample split into daily "activities" */
+function svDemo(path){const s=SAMPLES.ebc,r=s.route,st=s.stops;
+  if(!SV.demo){const cut=st.map(p=>{let bi=0,bd=1e9;r.forEach((q,i)=>{const d=(q[0]-p.lat)**2+(q[1]-p.lon)**2;if(d<bd){bd=d;bi=i}});return bi});
+    SV.demo=[];for(let d=0;d<cut.length-1;d++){const seg=r.slice(cut[d],cut[d+1]+1);if(seg.length<2)continue;let km=0;for(let i=1;i<seg.length;i++)km+=hav({lat:seg[i-1][0],lon:seg[i-1][1]},{lat:seg[i][0],lon:seg[i][1]});
+      const day=new Date(Date.UTC(2025,9,6+SV.demo.length,1,30));SV.demo.push({id:'demo'+d,name:`${st[d].n} to ${st[d+1].n}`,type:'Hike',start:day.toISOString(),local:day.toISOString(),km,gain:0,secs:6*3600,gps:true,line:seg,seg})}
+    SV.demo.reverse();SV.demo.push({id:'demo-x',name:'Morning Ride',type:'VirtualRide',start:'2025-10-01T22:00:00Z',km:24.1,gain:0,gps:false,line:''})}
+  if(path.includes('/activities'))return Promise.resolve({athlete:{name:''},more:false,activities:SV.demo});
+  const id=decodeURIComponent(path.split('id=')[1]),a=SV.demo.find(x=>x.id===id),n=a.seg.length;
+  return Promise.resolve({id,points:a.seg.map((q,i)=>[q[0],q[1],null,Math.round(i/(n-1)*6*3600)])})}
+/* returning from Strava sign-in (deferred so the size and colour pickers exist) */
+setTimeout(function(){const h=location.hash;if(API===null)return;
+  const restore=()=>{try{const st=JSON.parse(sessionStorage.getItem('tm_state')||'null');if(!st)return;sessionStorage.removeItem('tm_state');
+    const sz=SIZES.find(x=>x.id===st.size);if(sz){S.size=sz;$('size-'+sz.id).checked=true}const c=COLOURS.find(x=>x.id===st.colour);if(c)S.colour=c;
+    if(st.font)setFont(st.font);if(st.title)$('t-title').value=st.title;if(st.sub)$('t-sub').value=st.sub;if(st.email)$('email').value=st.email}catch(e){}};
+  if(/^#strava/.test(h)){restore();history.replaceState(null,'',location.pathname+location.search);setTimeout(()=>$('step1').scrollIntoView({block:'start'}),300)}
+  const why={'#strava-denied':'No worries. Paste a link or upload a GPX file instead.','#strava-noscope':'Strava didn’t share your activities. Connect again and leave “View data about your activities” ticked.','#strava-error':'Couldn’t connect to Strava. Try again, or paste a link instead.','#strava-config':'Strava isn’t set up on this site yet. Paste a link or upload a GPX file instead.'};
+  if(why[h]){svMsg(why[h],'err-line');return}
+  if(/^#strava/.test(h))sync();
+  svLoad(1).catch(e=>{if(e.status===429)svMsg(esc(e.message),'err-line')})},0);
+
+function terrain(b){
+  const px=(lon,z)=>(lon+180)/360*256*2**z,py=(lat,z)=>{const r=lat*Math.PI/180;return(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*256*2**z};
+  let z=12;while(z>3&&(px(b.lon1,z)-px(b.lon0,z))>700)z--;
+  const x0=px(b.lon0,z),x1=px(b.lon1,z),y0=py(b.lat1,z),y1=py(b.lat0,z),tx0=Math.floor(x0/256),tx1=Math.floor(x1/256),ty0=Math.floor(y0/256),ty1=Math.floor(y1/256);
+  const cols=tx1-tx0+1,rows=ty1-ty0+1;if(cols*rows>40)return Promise.reject(new Error('big'));
+  const cv=document.createElement('canvas');cv.width=cols*256;cv.height=rows*256;const cx=cv.getContext('2d',{willReadFrequently:true});const jobs=[];
+  for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++)jobs.push(new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';
+    im.onload=()=>{cx.drawImage(im,(tx-tx0)*256,(ty-ty0)*256);res()};im.onerror=()=>rej(new Error('tile'));setTimeout(()=>rej(new Error('timeout')),12000);
+    im.src=`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${tx}/${ty}.png`}));
+  return Promise.all(jobs).then(()=>{const d=cx.getImageData(0,0,cv.width,cv.height).data,E=new Float32Array(cv.width*cv.height);
+    for(let i=0;i<E.length;i++)E[i]=d[i*4]*256+d[i*4+1]+d[i*4+2]/256-32768;
+    const kx=111.32*Math.cos((b.lat0+b.lat1)/2*Math.PI/180),w=160,h=Math.round(160*(b.lat1-b.lat0)*110.57/((b.lon1-b.lon0)*kx)),Z=new Float32Array(w*h),Wd=cv.width;
+    const smp=(X,Y)=>{X=Math.max(0,Math.min(Wd-1.001,X));Y=Math.max(0,Math.min(cv.height-1.001,Y));const i=X|0,j=Y|0,f=X-i,g=Y-j;return(E[j*Wd+i]*(1-f)+E[j*Wd+i+1]*f)*(1-g)+(E[(j+1)*Wd+i]*(1-f)+E[(j+1)*Wd+i+1]*f)*g};
+    for(let r=0;r<h;r++){const Yp=py(b.lat1-(r/(h-1))*(b.lat1-b.lat0),z)-ty0*256;for(let c=0;c<w;c++)Z[r*w+c]=Math.max(0,smp(px(b.lon0+(c/(w-1))*(b.lon1-b.lon0),z)-tx0*256,Yp))}
+    let A=Z;for(let p=0;p<2;p++){const B=new Float32Array(w*h);for(let r=0;r<h;r++)for(let c=0;c<w;c++){let s=0,n=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const rr=r+dr,cc=c+dc;if(rr>=0&&rr<h&&cc>=0&&cc<w){s+=A[rr*w+cc];n++}}B[r*w+c]=s/n}A=B}
+    let mn=1e9;for(const v of A)mn=Math.min(mn,v);for(let i=0;i<A.length;i++)A[i]-=mn;return{...b,w,h,z:A}})}
+
+/* ---------- steps 2–3 ---------- */
+SIZES.forEach(sz=>{const l=document.createElement('label');l.className='opt';
+  l.innerHTML=`<input type="radio" name="size" id="size-${sz.id}" value="${sz.id}" ${sz===S.size?'checked':''}><span class="n">${sz.n}<span class="d">${sz.d}</span></span><span class="p">A$${sz.price}</span>`;
+  l.querySelector('input').addEventListener('change',()=>{S.size=sz;build(true);sync()});$('sizes').appendChild(l)});
+COLOURS.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='sw';b.id='col-'+c.id;b.style.background=c.hex;b.setAttribute('role','radio');b.setAttribute('aria-label',c.n+' route');
+  b.addEventListener('click',()=>{S.colour=c;build(true);sync()});$('swatches').appendChild(b)});
+const swn=document.createElement('span');swn.className='swname';swn.id='swname';$('swatches').appendChild(swn);
+function redrawText(){const m=model&&model.getObjectByName('text');
+  if(m&&dims){m.material.map.dispose();m.material.map=textTexture(dims.W,dims.base);m.material.needsUpdate=true;dirty=true}}
+let tt;['t-title','t-sub'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(tt);tt=setTimeout(()=>{redrawText();sync()},150)}));
+function setFont(id){S.font=id;const f=FONTS.find(f=>f.id===id)||FONTS[0];
+  ['t-title','t-sub'].forEach(i=>{$(i).style.font=f.css.replace('{px}','15');$(i).style.letterSpacing='.04em'});
+  const go=()=>{redrawText();sync()};(document.fonts&&document.fonts.load?document.fonts.load(f.css.replace('{px}','40')).then(go,go):go())}
+FONTS.forEach(f=>{const b=document.createElement('button');b.type='button';b.className='fnt';b.id='fnt-'+f.id.replace(/\s/g,'');b.setAttribute('role','radio');
+  b.innerHTML=`<b style='font:${f.css.replace('{px}','20')}'>TRAIL</b><span>${f.n}</span>`;b.addEventListener('click',()=>setFont(f.id));$('fonts').appendChild(b)});
+
+/* ---------- summary, sticky bar, checkout ---------- */
+function trackLabel(){if(S.source==='strava')return`Strava · ${S.strava.length} activit${S.strava.length>1?'ies':'y'}`;if(S.source==='file')return`${S.files} GPX file${S.files>1?'s':''}`;if(S.source==='link')return S.link.length>34?S.link.slice(0,34)+'…':S.link;if(S.source.startsWith('famous:'))return S.source.slice(7);return'Not added yet'}
+function sync(){
+  COLOURS.forEach(c=>$('col-'+c.id).setAttribute('aria-checked',c===S.colour));$('swname').textContent=S.colour.n;
+  FONTS.forEach(f=>$('fnt-'+f.id.replace(/\s/g,'')).setAttribute('aria-checked',f.id===S.font));
+  const hasTrack=S.source!=='example';
+  $('step1').classList.toggle('done',hasTrack);$('step2').classList.add('done');$('step3').classList.toggle('done',!!$('t-title').value);
+  $('summary').innerHTML=`<div><span>Track</span><span>${esc(trackLabel())}</span></div><div><span>Size</span><span>${S.size.n}, ${S.size.mm} mm</span></div>
+<div><span>Title</span><span>${esc(($('t-title').value||'We’ll suggest one').toUpperCase())}</span></div>
+<div><span>Font</span><span>${(FONTS.find(f=>f.id===S.font)||FONTS[0]).n}</span></div>
+    <div><span>Shipping</span><span>Calculated at checkout</span></div><div class="tot"><span>Total</span><span>A$${S.size.price}</span></div>`;
+  $('bar-amt').textContent='A$'+S.size.price;$('bar-what').textContent=`${S.size.n} · ${S.size.mm} mm`;
+  $('bar-cta').textContent=!inBuilder?'Design yours':(hasTrack?'Checkout':'Add your track');
+}
+let inBuilder=false;
+new IntersectionObserver(e=>{inBuilder=e[0].isIntersecting||e[0].boundingClientRect.top<0;sync()},{rootMargin:'0px 0px -40% 0px'}).observe($('build'));
+$('bar-cta').addEventListener('click',()=>{const target=!inBuilder?$('build'):(S.source==='example'?$('step1'):$('step4'));target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})});
+$('hero-cta').addEventListener('click',()=>track('Lead',{step:'design'}));
+$('checkout').addEventListener('click',()=>{
+  const em=$('email').value.trim(),c=$('confirm');c.hidden=false;
+  if(S.source==='example'){c.style.borderLeftColor='var(--accent)';c.innerHTML='Add your track in step 1 first: paste a link, upload a file or pick a famous trek.';$('step1').scrollIntoView({behavior:'smooth'});return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){c.style.borderLeftColor='var(--accent)';c.innerHTML='Add your email so we can send your order confirmation.';$('email').focus();return}
+  c.style.borderLeftColor='var(--ok)';
+  track('InitiateCheckout',{value:S.size.price,currency:'AUD',content_name:S.size.n});
+  c.innerHTML=`<strong>Ready for checkout.</strong> On the live site this opens secure payment (card, Apple Pay, Google Pay) for A$${S.size.price} plus shipping, then emails ${esc(em)} a receipt.${S.source==='strava'?' Your Strava track is attached to the order.':''} Your order confirmation with the final 3D model follows within 2 days.`;
+});
+
+/* ---------- What's possible + fully custom ---------- */
+document.querySelectorAll('.gcard button[data-go]').forEach(b=>b.addEventListener('click',()=>{const go=b.dataset.go;track('ViewContent',{content_name:'possible:'+go});
+  if(go==='trails'){$('tab-famous').click();loadSample('bibbulmun',true);$('build').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});return}
+  if(go==='custom'){$('custom').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});if(b.dataset.pre&&!$('c-what').value)$('c-what').value=b.dataset.pre;setTimeout(()=>$('c-what').focus({preventScroll:true}),400);return}
+  $('tab-famous').click();loadSample(go,true);$('build').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}));
+$('c-send').addEventListener('click',()=>{const c=$('c-confirm'),em=$('c-email').value.trim(),w=$('c-what').value.trim();c.hidden=false;
+  if(w.length<8){c.style.borderLeftColor='var(--accent)';c.textContent='Tell us a little about what you’d like made.';$('c-what').focus();return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){c.style.borderLeftColor='var(--accent)';c.textContent='Add your email so we can send your preview and quote.';$('c-email').focus();return}
+  c.style.borderLeftColor='var(--ok)';track('Lead',{content_name:'custom'});
+  c.innerHTML='<strong>Request ready.</strong> On the live site this sends your idea to us, and we reply to '+esc(em)+' with a 3D preview and a price within 2 days.'});
+
+sync();
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>loadSample('ebc',false));
+})();
+</script>

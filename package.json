@@ -1,0 +1,10 @@
+{
+  "name": "trackmade-web",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "dev": "node dev/server.js",
+    "mock": "node dev/mock-strava.js"
+  }
+}
