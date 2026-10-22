@@ -91,6 +91,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .drop.over{border-color:var(--accent)}
 .field{display:grid;gap:5px;font-size:13.5px;color:var(--muted)}
 .field input{font:500 16px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:11px 12px;width:100%;min-width:0}
+.fit{font-size:13px;margin:-6px 0 12px;color:var(--muted)}.fit.bad{color:var(--accent);font-weight:600}
 .field input.mono{font-family:var(--f-display);font-weight:600;font-size:15px;letter-spacing:.04em;text-transform:uppercase}
 .hint{font-size:13px;color:var(--muted)}
 .ok-line{font-size:13.5px;color:var(--ok);font-weight:500}
@@ -304,8 +305,10 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
         <p class="hint">White terrain, scarlet red route, grey lettering. Water is inlaid in blue. Pick a font for the lettering:</p>
         <div class="fonts" role="radiogroup" aria-label="Lettering font" id="fonts"></div>
         <div class="swatches" role="radiogroup" aria-label="Route colour" id="swatches" hidden></div>
-        <label class="field" for="t-title">Title<input class="mono" id="t-title" maxlength="28" placeholder="EVEREST BASE CAMP"></label>
-        <label class="field" for="t-sub">Details line<input class="mono" id="t-sub" maxlength="60" placeholder="6–12 OCT 2025 · 67.7 KM"></label>
+        <label class="field" for="t-title">Title<input class="mono" id="t-title" maxlength="32" placeholder="EVEREST BASE CAMP"></label>
+        <p class="fit" id="fit-title" aria-live="polite"></p>
+        <label class="field" for="t-sub">Details line<input class="mono" id="t-sub" maxlength="70" placeholder="6–12 OCT 2025 · 67.7 KM"></label>
+        <p class="fit" id="fit-sub" aria-live="polite"></p>
       </div>
 
       <div class="step" id="step4">
@@ -445,6 +448,13 @@ const FONTS=[{id:'Sora',n:'Modern',css:'700 {px}px Sora,Arial,sans-serif'},
   {id:'Roboto Slab',n:'Slab',css:'700 {px}px "Roboto Slab",Georgia,serif'},
   {id:'Nunito',n:'Rounded',css:'800 {px}px Nunito,Arial,sans-serif'}];
 function fontOf(px){const f=FONTS.find(f=>f.id===S.font)||FONTS[0];return f.css.replace('{px}',px.toFixed(1))}
+const TITLE_MIN=4.0,LINE_MIN=2.8,MCANVAS=document.createElement('canvas').getContext('2d');
+function lineFit(txt,minMm,limit){if(!txt||!dims)return{ok:true};MCANVAS.font=fontOf(minMm*10);
+  const w=MCANVAS.measureText(txt.toUpperCase()).width/10,max=dims.W*limit;return{ok:w<=max+0.5,n:Math.max(1,Math.floor(txt.length*max/w))}}
+function fitCheck(){const name=S.size.n,t=lineFit($('t-title').value,TITLE_MIN,0.9),d=lineFit($('t-sub').value,LINE_MIN,0.92);
+  const say=(id,f,what)=>{const e=$(id);e.className='fit'+(f.ok?'':' bad');
+    e.textContent=f.ok?'':`Too long for the ${name}: about ${f.n} letters fit on its front at a size that prints cleanly. Shorten the ${what} or pick a bigger size.`};
+  say('fit-title',t,'title');say('fit-sub',d,'details line');return t.ok&&d.ok}
 function textTexture(W,base){const cw=Math.min(4096,Math.round(W*12)),ch=Math.round(cw*base/W),c=document.createElement('canvas');c.width=cw;c.height=ch;
   const x=c.getContext('2d'),m=cw/W,k=S.size.mm/250;x.fillStyle='#4a4d50';x.textAlign='center';
   const title=($('t-title').value||S.phTitle||'').toUpperCase(),sub=($('t-sub').value||S.phSub||'').toUpperCase();
@@ -654,7 +664,8 @@ function sync(){
   COLOURS.forEach(c=>$('col-'+c.id).setAttribute('aria-checked',c===S.colour));$('swname').textContent=S.colour.n;
   FONTS.forEach(f=>$('fnt-'+f.id.replace(/\s/g,'')).setAttribute('aria-checked',f.id===S.font));
   const hasTrack=S.source!=='example';
-  $('step1').classList.toggle('done',hasTrack);$('step2').classList.add('done');$('step3').classList.toggle('done',!!$('t-title').value);
+  const fits=fitCheck();
+  $('step1').classList.toggle('done',hasTrack);$('step2').classList.add('done');$('step3').classList.toggle('done',!!$('t-title').value&&fits);
   $('summary').innerHTML=`<div><span>Track</span><span>${esc(trackLabel())}</span></div><div><span>Size</span><span>${S.size.n}, ${S.size.mm} mm</span></div>
 <div><span>Title</span><span>${esc(($('t-title').value||'We’ll suggest one').toUpperCase())}</span></div>
 <div><span>Font</span><span>${(FONTS.find(f=>f.id===S.font)||FONTS[0]).n}</span></div>
@@ -670,6 +681,7 @@ $('checkout').addEventListener('click',()=>{
   const em=$('email').value.trim(),c=$('confirm');c.hidden=false;
   if(S.source==='example'){c.style.borderLeftColor='var(--accent)';c.innerHTML='Add your track in step 1 first: paste a link, upload a file or pick a famous trek.';$('step1').scrollIntoView({behavior:'smooth'});return}
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){c.style.borderLeftColor='var(--accent)';c.innerHTML='Add your email so we can send your order confirmation.';$('email').focus();return}
+  if(!fitCheck()){c.style.borderLeftColor='var(--accent)';c.innerHTML='Your base text is too long for this size. Shorten it in step 3, or pick a bigger size.';$('step3').scrollIntoView({behavior:'smooth',block:'center'});return}
   c.style.borderLeftColor='var(--ok)';
   track('InitiateCheckout',{value:S.size.price,currency:'AUD',content_name:S.size.n});
   if(API===null){c.innerHTML=`<strong>Ready for checkout.</strong> On the live site this opens secure payment (card, Apple Pay, Google Pay) for A$${S.size.price} plus shipping, then emails ${esc(em)} a receipt.${S.source==='strava'?' Your Strava track is attached to the order.':''} Your order confirmation with the final 3D model follows within 2 days.`;return}

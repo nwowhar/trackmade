@@ -92,11 +92,14 @@ function renderTabs(){$('tabs').innerHTML=TABS.map(([k,n,ss])=>`<button data-k="
   $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=b.dataset.k;renderTabs();renderList()})}
 function due(o){if(!o.ship_by||['shipped','delivered','cancelled','request'].includes(o.status))return'';const d=(Date.parse(o.ship_by)-Date.now())/864e5;
   return d<0?`<span class="late">${Math.ceil(-d)} days late</span>`:(d<=3?`<span class="soon">Ship by ${day(o.ship_by)}</span>`:`Ship by ${day(o.ship_by)}`)}
+const PICON={queued:'○',printing:'◐',printed:'●'};
+function prod(o){const p=o.production||{};if(!p.terrain&&!p.route)return'';
+  return ` · Terrain ${PICON[p.terrain]||'○'} Route ${PICON[p.route]||'○'}${p.terrain==='printed'&&p.route==='printed'?' <b>ready to pack</b>':''}`}
 function renderList(){const ss=TABS.find(t=>t[0]===tab)[2];const L=orders.filter(o=>!ss||ss.includes(o.status));
   if(!L.length){$('list').innerHTML=`<div class="empty">Nothing here${tab==='you'?'. Nice.':'.'}</div>`;return}
   $('list').innerHTML=L.map(o=>`<div class="row" data-ref="${esc(o.ref)}"><span class="ref">${esc(o.ref)}</span><span class="t">${esc(o.title||o.request_text||'(no title)')}</span>
    <span class="pill ${kind(o.status)}">${esc((ST[o.status]||{}).label||o.status)}</span>
-   <span class="sub">${esc(SIZE[o.size]||o.size)} · ${esc(o.customer_name||o.email)} · ${day(o.created_at)} ${due(o)?' · '+due(o):''}</span></div>`).join('');
+   <span class="sub">${esc(SIZE[o.size]||o.size)} · ${esc(o.customer_name||o.email)} · ${day(o.created_at)} ${due(o)?' · '+due(o):''}${prod(o)}</span></div>`).join('');
   $('list').querySelectorAll('.row').forEach(r=>r.onclick=()=>{location.hash=r.dataset.ref})}
 window.addEventListener('hashchange',openFromHash);
 function openFromHash(){const ref=decodeURIComponent(location.hash.slice(1));if(!ref){$('detail').hidden=true;return}open(ref)}
@@ -129,6 +132,10 @@ async function open(ref){$('detail').hidden=false;$('panel').innerHTML='<p>Loadi
     <label>Photo of the model (Studio’s preview.png)<input type="file" id="img" accept="image/png,image/jpeg"></label>
     <textarea id="pnote" placeholder="Optional note to the customer, e.g. I trimmed the crop slightly so the summit sits in the middle."></textarea>
     <button class="red" id="sendPrev">${o.preview_url?'Send updated confirmation':'Send order confirmation'}</button></div>`:''}
+  <h3>Printing</h3><div class="acts">${['terrain','route'].map(pl=>{const st=(o.production||{})[pl]||'not started';
+    return `<span class="pill" style="align-self:center">${pl==='terrain'?'Terrain':'Route'}: ${esc(st)}</span>`+
+      (st!=='printing'&&st!=='printed'?`<button class="soft" data-pl="${pl}" data-st="printing">Started</button>`:'')+
+      (st!=='printed'?`<button class="soft" data-pl="${pl}" data-st="printed">Printed</button>`:'')}).join('')}</div>
   <h3>Move it along</h3><div class="acts">${next.map(s=>`<button data-s="${s}" class="${s==='printing'?'red':''}">${esc((ST[s]||{}).label||s)}</button>`).join('')}
    ${o.status!=='cancelled'&&o.status!=='delivered'?`<button class="soft" data-s="cancelled">Cancel order</button>`:''}</div>
   <div id="shipBox" hidden class="card" style="margin-top:10px;display:grid;gap:8px"><input id="trk" placeholder="Australia Post tracking number"><button class="red" id="shipGo">Mark shipped and email tracking</button></div>
@@ -142,6 +149,7 @@ async function open(ref){$('detail').hidden=false;$('panel').innerHTML='<p>Loadi
     if(s==='shipped'){$('shipBox').hidden=false;$('trk').focus();return}
     if(s==='cancelled'&&!confirm('Cancel this order? Refund it in Stripe separately.'))return;
     try{await api('status',{ref:o.ref,status:s});await loadList();open(o.ref)}catch(e){msg(e.message,true)}});
+  $('panel').querySelectorAll('button[data-pl]').forEach(b=>b.onclick=async()=>{try{await api('production',{ref:o.ref,plate:b.dataset.pl,state:b.dataset.st});await loadList();open(o.ref)}catch(e){msg(e.message,true)}});
   if($('shipGo'))$('shipGo').onclick=async()=>{try{await api('status',{ref:o.ref,status:'shipped',tracking_number:$('trk').value.trim()});await loadList();open(o.ref)}catch(e){msg(e.message,true)}};
   if($('sendPrev'))$('sendPrev').onclick=async()=>{const f=$('img').files[0];if(!f){msg('Pick the photo first.',true);return}
     $('sendPrev').disabled=true;try{const image=await shrink(f);await api('preview',{ref:o.ref,image,note:$('pnote').value});await loadList();open(o.ref)}

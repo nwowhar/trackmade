@@ -38,6 +38,7 @@ create table if not exists public.orders (
   approved_at           timestamptz,
   tracking_number       text,
   shipped_at            timestamptz,
+  production            jsonb not null default '{}'::jsonb,   -- print tracking per plate
   history               jsonb not null default '[]'::jsonb
 );
 create index if not exists orders_status_idx on public.orders (status, created_at);
@@ -53,3 +54,6 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('tracks', 'tracks', false, 5242880, array['application/gpx+xml', 'application/octet-stream', 'text/xml']),
        ('previews', 'previews', true, 3145728, array['image/jpeg', 'image/png'])
 on conflict (id) do nothing;
+
+-- Added 22 Oct 2026 (print tracking). Safe to run on an existing database:
+alter table public.orders add column if not exists production jsonb not null default '{}'::jsonb;

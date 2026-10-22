@@ -2,6 +2,7 @@
 //   POST login {password} · POST logout · GET me
 //   GET  list[&status=new,approved]   GET get&ref=TM-1001 (includes a 1-hour download link for the GPS track)
 //   POST status {ref,status,tracking_number} · POST note {ref,note} · POST preview {ref,image(base64),type,note}
+//   POST production {ref, plate:'terrain'|'route', state:'queued'|'printing'|'printed'}  (print tracking, from Studio)
 import crypto from 'node:crypto';
 import { handle, query, json, readJson, cookies, setCookie, clearCookie, HttpError } from '../lib/http.js';
 import { seal, unseal } from '../lib/session.js';
@@ -58,6 +59,7 @@ export default handle(async (req, res) => {
   let done;
   if (a === 'status') done = await orders.setStatus(o, b.status, b);
   else if (a === 'note') done = await orders.saveNote(o, b.note);
+  else if (a === 'production') done = await orders.setProduction(o, b.plate, b.state);
   else if (a === 'preview') {
     const m = /^data:(image\/(?:jpeg|png));base64,/.exec(b.image || '');
     const buf = Buffer.from(String(b.image || '').replace(/^data:[^,]+,/, ''), 'base64');
