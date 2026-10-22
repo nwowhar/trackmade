@@ -44,6 +44,9 @@ create index if not exists orders_status_idx on public.orders (status, created_a
 
 -- Lock the table: only the website's server (service key) can read or write orders. No public access at all.
 alter table public.orders enable row level security;
+revoke all on public.orders from anon, authenticated;
+grant select, insert, update, delete on public.orders to service_role;
+grant usage, select on sequence order_ref_seq to service_role;
 
 -- File storage: customers' GPS tracks are private; confirmation photos are public under random names (for the emails).
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
