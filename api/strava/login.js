@@ -1,10 +1,12 @@
 // GET /api/strava/login?return=/path  ->  Strava's "Authorize TrackMade" page
 import crypto from 'node:crypto';
-import { handle, query, redirect, setCookie } from '../../lib/http.js';
+import { handle, query, redirect, setCookie, json } from '../../lib/http.js';
 import { seal } from '../../lib/session.js';
 import { base, config, configured, STATE } from '../../lib/strava.js';
 
 export default handle(async (req, res) => {
+  // ?check=1 -> is the Strava button switched on? (the order form hides it until Strava is set up and approved)
+  if (query(req).check) return json(res, 200, { on: configured() && process.env.STRAVA_PUBLIC === '1' });
   let ret = query(req).return || '/';
   if (!ret.startsWith('/') || ret.startsWith('//')) ret = '/';          // only ever send people back to our own site
   if (!configured()) return redirect(res, ret + '#strava-config');

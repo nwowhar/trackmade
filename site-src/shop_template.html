@@ -266,10 +266,10 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
             </div>
             <div id="sv-msg"></div>
           </div>
-          <div class="or"><span>or paste a link</span></div>
+          <div class="or" id="sv-or" hidden><span>or paste a link</span></div>
           <label class="field" for="link">Activity link from Strava, Garmin Connect, Komoot or AllTrails
-            <input id="link" type="url" inputmode="url" placeholder="https://www.strava.com/activities/…" autocomplete="off"></label>
-          <p class="hint">Easiest on a phone. Make the activity public or shareable. We pull the track and send an order confirmation with your 3D model before we make it.</p>
+            <textarea id="link" rows="2" inputmode="url" placeholder="https://www.strava.com/activities/…" autocomplete="off" style="width:100%;font:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px"></textarea></label>
+          <p class="hint">Easiest on a phone. Set the activity to <b>Everyone</b> so we can see it. Trip over several days? Paste one link per day. We download the track and send an order confirmation with your 3D model before we make anything.</p>
           <div id="link-msg"></div>
         </div>
         <div data-pane="file" hidden>
@@ -490,7 +490,8 @@ let rq;$('routeReq').addEventListener('input',e=>{clearTimeout(rq);const v=e.tar
 const LINK_RX=/(strava\.com|strava\.app\.link|garmin\.com|komoot\.(com|de)|alltrails\.com|ridewithgps\.com|plotaroute|wikiloc)/i;
 $('link').addEventListener('input',e=>{const v=e.target.value.trim();S.link=v;const m=$('link-msg');
   if(!v){m.innerHTML='';if(S.source==='link')S.source='example';sync();return}
-  if(LINK_RX.test(v)){S.source='link';m.innerHTML='<p class="ok-line">Got it. We’ll pull this track and send your order confirmation.</p>'}
+  const n=(v.match(/https?:\/\//gi)||[]).length;
+  if(LINK_RX.test(v)){S.source='link';m.innerHTML=`<p class="ok-line">Got it${n>1?`: ${n} links`:''}. We’ll download the track and send your order confirmation.</p>`}
   else if(/^https?:\/\//i.test(v)){S.source='link';m.innerHTML='<p class="hint">We’ll check this link by hand. If it isn’t public we’ll email you.</p>'}
   else{S.source='link';m.innerHTML='<p class="hint">No link? A route name works too, e.g. “Overland Track, 6 days”.</p>'}
   sync()});
@@ -547,6 +548,10 @@ function toGPX(pts,name){const x=s=>String(s).replace(/[<&>"]/g,c=>({'<':'&lt;',
    API is '' on the live site (same-origin /api/strava/*) and null in the offline demo build,
    where sample activities stand in for a real Strava account. */
 const API=__API__;
+// Strava connect only shows once it's switched on (Vercel: STRAVA_PUBLIC=1 after Strava approves the app). Until then: paste a link.
+if(API!==null){const sv=document.getElementById('strava');if(sv)sv.hidden=true;
+  fetch(API+'/api/strava/login?check=1').then(r=>r.json()).then(j=>{if(j.on&&sv){sv.hidden=false;document.getElementById('sv-or').hidden=false}}).catch(()=>{})}
+else{const o=document.getElementById('sv-or');if(o)o.hidden=false}
 const SV={acts:[],page:1,sel:new Set(),busy:false};
 const svFmtDate=iso=>{const d=new Date(iso);return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'})};
 function svMsg(html,cls){const m=$('sv-msg');m.className=cls||'hint';m.innerHTML=html}
