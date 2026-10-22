@@ -287,7 +287,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
             <button class="chip" data-s="kili" aria-pressed="false" type="button">Kilimanjaro</button>
             <button class="chip" data-s="chicago" aria-pressed="false" type="button">Chicago Marathon</button>
             <button class="chip" data-s="lap" aria-pressed="false" type="button">Lap of Australia</button>
-            <button class="chip" data-s="bibbulmun" aria-pressed="false" type="button">Bibbulmun Track</button><button class="chip" data-s="heysen" aria-pressed="false" type="button">Heysen Trail</button><button class="chip" data-s="overland" aria-pressed="false" type="button">Overland Track</button><button class="chip" data-s="larapinta" aria-pressed="false" type="button">Larapinta Trail</button><button class="chip" data-s="c2c" aria-pressed="false" type="button">Cape to Cape</button><button class="chip" data-s="aawt" aria-pressed="false" type="button">Australian Alps Walking Track</button><button class="chip" data-r="Munda Biddi Trail" aria-pressed="false" type="button">Munda Biddi</button><button class="chip" data-r="Kokoda Track" aria-pressed="false" type="button">Kokoda Track</button><button class="chip" data-r="Tour du Mont Blanc" aria-pressed="false" type="button">Tour du Mont Blanc</button><button class="chip" data-r="Inca Trail" aria-pressed="false" type="button">Inca Trail</button><button class="chip" data-r="Mt Kosciuszko" aria-pressed="false" type="button">Mt Kosciuszko</button>
+            <button class="chip" data-s="bibbulmun" aria-pressed="false" type="button">Bibbulmun Track</button><button class="chip" data-s="heysen" aria-pressed="false" type="button">Heysen Trail</button><button class="chip" data-s="overland" aria-pressed="false" type="button">Overland Track</button><button class="chip" data-s="larapinta" aria-pressed="false" type="button">Larapinta Trail</button><button class="chip" data-s="c2c" aria-pressed="false" type="button">Cape to Cape</button><button class="chip" data-s="aawt" aria-pressed="false" type="button">Australian Alps Walking Track</button><button class="chip" data-s="munda" aria-pressed="false" type="button">Munda Biddi</button><button class="chip" data-s="kokoda" aria-pressed="false" type="button">Kokoda Track</button><button class="chip" data-s="tmb" aria-pressed="false" type="button">Tour du Mont Blanc</button><button class="chip" data-s="inca" aria-pressed="false" type="button">Inca Trail</button><button class="chip" data-s="kosci" aria-pressed="false" type="button">Mt Kosciuszko</button>
           </div>
           <label class="field" for="routeReq">Can't see yours? Type any trail, ride, race or track and we'll build it
             <input id="routeReq" type="text" placeholder="e.g. Bibbulmun Track, Albany to Walpole" autocomplete="off"></label>
@@ -468,7 +468,13 @@ function numTexture(n,hex){const c=document.createElement('canvas');c.width=c.he
 /* ---------- samples ---------- */
 function decode(gr){const b=atob(gr.b64),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);const q=new Uint16Array(u.buffer),z=new Float32Array(q.length);for(let i=0;i<q.length;i++)z[i]=q[i];return{...gr,z}}
 const CACHE={};
-function loadSample(key,asChoice){const s=SAMPLES[key];CACHE[key]=CACHE[key]||decode(s.grid);
+/* Famous routes: the default one is in the page; the rest load when picked (keeps the page light on phones). */
+let wantSample='';
+function loadSample(key,asChoice){wantSample=key;const s=SAMPLES[key];
+  if(!s.grid){document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',!!(asChoice&&c.dataset.s===key)));
+    fetch('/samples/'+key+'.json').then(r=>{if(!r.ok)throw 0;return r.json()}).then(full=>{Object.assign(s,full);if(wantSample===key)loadSample(key,asChoice)})
+      .catch(()=>{$('vnote').hidden=false;$('vnote').textContent='Couldn’t load the preview. Your order confirmation will show the '+s.name+'.'});return}
+  CACHE[key]=CACHE[key]||decode(s.grid);
   S.track={name:s.name,grid:CACHE[key],route:s.route,stops:s.stops,lake:s.lake};S.exag=s.exag;
   S.phTitle=s.title;S.phSub=s.sub.replace(/\s+·\s+/g,' · ');$('t-title').placeholder='e.g. '+S.phTitle;$('t-sub').placeholder='e.g. '+S.phSub;
   if(asChoice){S.source='famous:'+s.name;$('t-title').value=s.title;$('t-sub').value=S.phSub;}
@@ -480,7 +486,7 @@ document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',(
   document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-selected',x===b));
   document.querySelectorAll('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==b.dataset.tab)}));
 document.querySelectorAll('.chip[data-s]').forEach(c=>c.addEventListener('click',()=>{loadSample(c.dataset.s,true);track('CustomizeProduct',{source:'famous'})}));
-function pickRoute(name){S.source='famous:'+name;document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.r===name));
+function pickRoute(name){wantSample='';S.source='famous:'+name;document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.r===name));
   $('t-title').value=name.toUpperCase().slice(0,28);$('t-sub').value='';
   $('vnote').hidden=false;$('vnote').textContent='Preview shows an example. Your order confirmation will show the '+name+'.';
   const m=model&&model.getObjectByName('text');if(m&&dims){m.material.map.dispose();m.material.map=textTexture(dims.W,dims.base);m.material.needsUpdate=true;dirty=true}
@@ -517,7 +523,7 @@ async function handleFiles(list){
   if(pts.length<2){msg.className='err-line';msg.textContent='No track found in that file. Try the activity link instead.';return}
   await useTrack(pts,names,{msg,count:files.length,unit:'file',units:'files',source:'file',after:()=>{S.files=files.length;S.fileNames=files.map(f=>f.name)}});
 }
-async function useTrack(pts,names,o){const msg=o.msg;
+async function useTrack(pts,names,o){wantSample='';const msg=o.msg;
   if(pts.every(p=>p.t!=null))pts.sort((a,b)=>a.t-b.t);
   let km=0,hi=-Infinity;for(let i=1;i<pts.length;i++)km+=hav(pts[i-1],pts[i]);pts.forEach(p=>{if(p.ele!=null&&p.ele>hi)hi=p.ele});
   const segs=[[pts[0]]];for(let i=1;i<pts.length;i++){if(pts[i].t&&pts[i-1].t&&pts[i].t-pts[i-1].t>3*3600e3)segs.push([]);segs[segs.length-1].push(pts[i])}
