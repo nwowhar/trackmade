@@ -500,9 +500,9 @@ const FONTS=[{id:'Sora',n:'Modern',css:'700 {px}px Sora,Arial,sans-serif'},
   {id:'Roboto Slab',n:'Slab',css:'700 {px}px "Roboto Slab",Georgia,serif'},
   {id:'Nunito',n:'Rounded',css:'800 {px}px Nunito,Arial,sans-serif'}];
 function fontOf(px){const f=FONTS.find(f=>f.id===S.font)||FONTS[0];return f.css.replace('{px}',px.toFixed(1))}
-const TITLE_MIN=4.0,LINE_MIN=2.8,MCANVAS=document.createElement('canvas').getContext('2d');
+const TITLE_MIN=4.5,LINE_MIN=3.4,MCANVAS=document.createElement('canvas').getContext('2d');
 function lineFit(txt,minMm,limit){if(!txt||!dims)return{ok:true};MCANVAS.font=fontOf(minMm*10);
-  const w=MCANVAS.measureText(txt.toUpperCase()).width/10,max=dims.W*limit;return{ok:w<=max+0.5,n:Math.max(1,Math.floor(txt.length*max/w))}}
+  const T=txt.toUpperCase(),tr=minMm<6?0.05*minMm+0.08:0,w=MCANVAS.measureText(T).width/10+Math.max(0,T.length-1)*tr,max=dims.W*limit;return{ok:w<=max+0.5,n:Math.max(1,Math.floor(txt.length*max/w))}}
 function fitCheck(){const name=S.size.n,t=lineFit($('t-title').value,TITLE_MIN,0.9),d=lineFit($('t-sub').value,LINE_MIN,0.92);
   const say=(id,f,what)=>{const e=$(id);e.className='fit'+(f.ok?'':' bad');
     e.textContent=f.ok?'':`Too long for the ${name}: about ${f.n} letters fit on its front at a size that prints cleanly. Shorten the ${what} or pick a bigger size.`};
