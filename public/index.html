@@ -75,6 +75,14 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
   aspect-ratio:4/3.4;max-width:100%}
 .viewer canvas{display:block;width:100%;height:100%;touch-action:pan-y}
 .viewer.live canvas{touch-action:none}
+/* Left column: the 3D preview with "Fully custom" under it. Phones: preview, steps, then custom.
+   Wide screens: the preview sticks while the steps scroll; on tall screens the custom box sticks with it,
+   otherwise it sits at the bottom of the column, level with checkout. */
+.left{display:contents}
+.vwrap{order:1}.steps{order:2}.builder .custom{order:3;margin-top:8px}
+@media (min-width:900px){.left{display:flex;flex-direction:column;gap:20px;align-self:stretch;min-width:0}
+  .vwrap{flex:1}.vwrap .viewer{position:sticky;top:16px}.builder .custom{margin-top:0}}
+@media (min-width:900px) and (min-height:1000px){.left{position:sticky;top:16px;align-self:start}.vwrap{flex:none}.vwrap .viewer{position:relative;top:0}}
 .v-label{position:absolute;left:12px;top:10px;font-size:12px;color:var(--muted);font-family:var(--f-data);pointer-events:none;line-height:1.5}
 .v-label .v-pre{display:block;max-width:240px;font:400 11.5px/1.35 var(--f-body);margin-top:3px}
 .v-label b{display:block;font-family:var(--f-display);font-size:16px;color:var(--ink);letter-spacing:.01em}
@@ -126,6 +134,7 @@ label.opt{display:grid;grid-template-columns:auto 1fr auto;align-items:center;ga
 label.opt:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 label.opt input{accent-color:var(--accent);width:18px;height:18px;margin:0}
 .opt .n{font-weight:600}
+.opt .tag{font:600 11px var(--f-body);font-style:normal;letter-spacing:.02em;color:#fff;background:var(--accent);border-radius:99px;padding:2px 8px;margin-left:8px;vertical-align:2px}
 .opt .d{display:block;font-size:13px;color:var(--muted);font-weight:400}
 .opt .p{font-family:var(--f-display);font-weight:600;font-size:18px;font-variant-numeric:tabular-nums}
 .swatches{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
@@ -163,7 +172,7 @@ label.opt input{accent-color:var(--accent);width:18px;height:18px;margin:0}
 .custom{margin-top:40px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px}
 .custom h2{margin:0}
 .custom p{margin:0;color:var(--muted)}
-.field textarea{font:500 16px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:11px 12px;width:100%;min-height:110px;resize:vertical}
+.field textarea{font:500 16px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:11px 12px;width:100%;min-height:96px;resize:vertical}
 @media (min-width:900px){.custom{grid-template-columns:1fr 1fr;column-gap:24px}.custom .wide{grid-column:1/-1}}
 section.more{margin-top:40px;display:grid;gap:28px}
 .how{display:grid;gap:12px;counter-reset:s;padding:0;margin:14px 0 0;list-style:none}
@@ -201,7 +210,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
     <div>
       <h1>Your adventure, <span>made real.</span></h1>
       <p class="lede">Send the GPS track from your hike, ride or race and we sculpt the real mountains and valleys from satellite data, with your exact route set in. No GPS file? No worries: pick a famous route.</p>
-      <div class="price-line"><b>From A$59</b><small>We confirm your 3D model with you before we make it</small></div>
+      <div class="price-line"><b>Classic A$99</b><small>Mini A$59 · Signature A$150. We confirm your 3D model with you before we make it.</small></div>
       <ul class="trust">
         <li>Garmin · Strava · Komoot</li><li>No GPS file? No worries</li><li>Satellite elevation data</li><li>Your name and dates on the base</li>
       </ul>
@@ -236,11 +245,22 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
 
   <section class="builder" id="build">
     <h2>Design yours</h2>
-    <div class="viewer" id="viewer" aria-label="3D preview">
-      <div class="v-label" id="vlabel"></div>
-      <div class="v-note" id="vnote" hidden></div>
-      <button class="v-hint" id="vhint" type="button">Tap to spin in 3D</button>
-      <div class="v-load" id="vload" hidden>Loading terrain…</div>
+    <div class="left">
+      <div class="vwrap">
+        <div class="viewer" id="viewer" aria-label="3D preview">
+          <div class="v-label" id="vlabel"></div>
+          <div class="v-note" id="vnote" hidden></div>
+          <button class="v-hint" id="vhint" type="button">Tap to spin in 3D</button>
+          <div class="v-load" id="vload" hidden>Loading terrain…</div>
+        </div>
+      </div>
+    <section class="custom" id="custom">
+      <div class="wide"><h2>Fully custom</h2><p>Something the steps don't cover? Describe it and we'll come back with a 3D preview and a price within 2 days.</p></div>
+      <label class="field wide" for="c-what">What would you like made?<textarea id="c-what" placeholder="e.g. Our 3-month lap of Australia, both of our names on the base, with the 12 places we stopped longest marked."></textarea></label>
+      <label class="field" for="c-link">Link or route (optional)<input id="c-link" type="text" placeholder="Strava, Garmin or Komoot link, or a route name" autocomplete="off"></label>
+      <label class="field" for="c-email">Your email<input id="c-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></label>
+      <div class="wide"><button class="cta" id="c-send" type="button">Send request</button><div class="confirm" id="c-confirm" hidden></div></div>
+    </section>
     </div>
 
     <div class="steps">
@@ -326,14 +346,6 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
     </div>
   </section>
 
-  <section class="custom" id="custom">
-    <div class="wide"><h2>Fully custom</h2><p>Something that doesn't fit the boxes above? Describe it and we'll come back with a 3D preview and a price within 2 days.</p></div>
-    <label class="field wide" for="c-what">What would you like made?<textarea id="c-what" placeholder="e.g. Our 3-month lap of Australia, both of our names on the base, with the 12 places we stopped longest marked."></textarea></label>
-    <label class="field" for="c-link">Link or route (optional)<input id="c-link" type="text" placeholder="Strava, Garmin or Komoot link, or a route name" autocomplete="off"></label>
-    <label class="field" for="c-email">Your email<input id="c-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></label>
-    <div class="wide"><button class="cta" id="c-send" type="button">Send request</button><div class="confirm" id="c-confirm" hidden></div></div>
-  </section>
-
   <section class="more">
     <div>
       <h2>How it works</h2>
@@ -375,9 +387,9 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const SAMPLES=JSON.parse($('samples').textContent);
-const SIZES=[{id:'mini',n:'Mini',mm:150,price:59,d:'150 mm · single colour route'},{id:'classic',n:'Classic',mm:200,price:99,d:'200 mm · slot-in route, numbered stops'},{id:'sig',n:'Signature',mm:250,price:150,d:'250 mm · slot-in route, stops, landmark dots'}];
+const SIZES=[{id:'mini',n:'Mini',mm:150,price:59,d:'150 mm · single colour route'},{id:'classic',n:'Classic',mm:200,price:99,tag:'Most popular',d:'200 mm · slot-in route, numbered stops'},{id:'sig',n:'Signature',mm:250,price:150,d:'250 mm · slot-in route, stops, landmark dots'}];
 const COLOURS=[{id:'red',n:'Scarlet red',hex:'#c8302a'}]   // one route colour for now (Bambu PLA Matte Scarlet Red);
-const S={track:null,size:SIZES[2],colour:COLOURS[0],font:'Sora',source:'example',link:'',files:0,exag:1.5};
+const S={track:null,size:SIZES[1],colour:COLOURS[0],font:'Sora',source:'example',link:'',files:0,exag:1.5};
 
 /* ---- marketing pixel hook: replace with Meta Pixel / GA4 when live ---- */
 function track(ev,data){try{if(window.fbq)window.fbq('track',ev,data||{})}catch(e){}}
@@ -659,7 +671,7 @@ function terrain(b){
 
 /* ---------- steps 2–3 ---------- */
 SIZES.forEach(sz=>{const l=document.createElement('label');l.className='opt';
-  l.innerHTML=`<input type="radio" name="size" id="size-${sz.id}" value="${sz.id}" ${sz===S.size?'checked':''}><span class="n">${sz.n}<span class="d">${sz.d}</span></span><span class="p">A$${sz.price}</span>`;
+  l.innerHTML=`<input type="radio" name="size" id="size-${sz.id}" value="${sz.id}" ${sz===S.size?'checked':''}><span class="n">${sz.n}${sz.tag?`<em class="tag">${sz.tag}</em>`:''}<span class="d">${sz.d}</span></span><span class="p">A$${sz.price}</span>`;
   l.querySelector('input').addEventListener('change',()=>{S.size=sz;build(true);sync()});$('sizes').appendChild(l)});
 COLOURS.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='sw';b.id='col-'+c.id;b.style.background=c.hex;b.setAttribute('role','radio');b.setAttribute('aria-label',c.n+' route');
   b.addEventListener('click',()=>{S.colour=c;build(true);sync()});$('swatches').appendChild(b)});
