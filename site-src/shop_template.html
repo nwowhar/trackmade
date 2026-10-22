@@ -70,7 +70,6 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .viewer{border-radius:var(--r);overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,var(--card),var(--stage));border:1px solid var(--line);position:relative;
   aspect-ratio:4/3.4;max-width:100%}
 .viewer canvas{display:block;width:100%;height:100%;touch-action:pan-y}
-.viewer.live canvas{touch-action:none}
 /* Left column: the 3D preview with "Fully custom" under it. Phones: preview, steps, then custom.
    Wide screens: the preview sticks while the steps scroll; on tall screens the custom box sticks with it,
    otherwise it sits at the bottom of the column, level with checkout. */
@@ -82,7 +81,13 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .v-label{position:absolute;left:12px;top:10px;font-size:12px;color:var(--muted);font-family:var(--f-data);pointer-events:none;line-height:1.5}
 .v-label .v-pre{display:block;max-width:240px;font:400 11.5px/1.35 var(--f-body);margin-top:3px}
 .v-label b{display:block;font-family:var(--f-display);font-size:16px;color:var(--ink);letter-spacing:.01em}
-.v-hint{position:absolute;right:10px;bottom:10px;font:500 12.5px var(--f-body);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:6px 11px;cursor:pointer}
+.v-hint{position:absolute;right:10px;bottom:10px;font:500 12px var(--f-body);background:var(--card);color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:6px 11px;pointer-events:none;transition:opacity .6s}
+.v-hint.gone{opacity:0}
+.v-nav{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:2px;font:500 12px var(--f-data);color:var(--muted)}
+.v-nav[hidden]{display:none}
+.v-nav button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;font:600 20px/1 var(--f-body);color:var(--ink);cursor:pointer}
+.v-nav button:hover{background:var(--soft)}
+.v-nav span{min-width:38px;text-align:center}
 .v-note{position:absolute;left:10px;right:10px;bottom:48px;font-size:12px;line-height:1.4;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:8px 10px}
 .v-load{position:absolute;inset:0;display:grid;place-items:center;font:500 13px var(--f-data);color:var(--muted);background:color-mix(in srgb,var(--stage) 70%,transparent)}
 .steps{display:grid;gap:14px;min-width:0}
@@ -246,7 +251,8 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
         <div class="viewer" id="viewer" aria-label="3D preview">
           <div class="v-label" id="vlabel"></div>
           <div class="v-note" id="vnote" hidden></div>
-          <button class="v-hint" id="vhint" type="button">Tap to spin in 3D</button>
+          <div class="v-hint" id="vhint" aria-hidden="true">Swipe to spin · pinch to zoom</div>
+          <div class="v-nav" id="vnav"><button type="button" id="vprev" aria-label="Previous example">‹</button><span id="vcount"></span><button type="button" id="vnext" aria-label="Next example">›</button></div>
           <div class="v-load" id="vload" hidden>Loading terrain…</div>
         </div>
       </div>
@@ -377,7 +383,6 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
 
 <script type="application/json" id="samples">__SAMPLES__</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 (function(){
 const $=id=>document.getElementById(id);
@@ -398,22 +403,53 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.outputEn
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 viewer.prepend(renderer.domElement);
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,1,5000);
-const controls=new THREE.OrbitControls(camera,renderer.domElement);
-controls.enabled=false;controls.enablePan=false;controls.maxPolarAngle=Math.PI*0.47;controls.autoRotate=true;controls.autoRotateSpeed=0.6;
+/* Spin and zoom, phone-first. One finger sideways spins (up and down still scrolls the page), two fingers pinch to
+   zoom and tilt, a mouse drags, ctrl/trackpad-pinch zooms, double-tap resets. It turns slowly on its own until touched. */
+const controls={target:new THREE.Vector3(),minDistance:1,maxDistance:1e4,autoRotate:true,minPolar:0.12,maxPolar:Math.PI*0.47,
+  sph:new THREE.Spherical(),vT:0,vP:0,home:null,
+  sync(){this.sph.setFromVector3(camera.position.clone().sub(this.target))},
+  save(){this.sync();this.home={...this.sph}},
+  reset(){if(this.home){Object.assign(this.sph,this.home);this.vT=this.vP=0;this.apply()}},
+  apply(){const s=this.sph;s.phi=Math.min(this.maxPolar,Math.max(this.minPolar,s.phi));s.radius=Math.min(this.maxDistance,Math.max(this.minDistance,s.radius));
+    camera.position.setFromSpherical(s).add(this.target);camera.lookAt(this.target);dirty=true},
+  update(){let moved=false;if(this.autoRotate){this.sph.theta+=0.0016;moved=true}
+    if(Math.abs(this.vT)>1e-5||Math.abs(this.vP)>1e-5){this.sph.theta+=this.vT;this.sph.phi+=this.vP;this.vT*=0.9;this.vP*=0.9;moved=true}
+    if(moved)this.apply();return moved}};
 scene.add(new THREE.HemisphereLight(0xffffff,0x8c949c,0.55));
 const sun=new THREE.DirectionalLight(0xffffff,0.85);sun.castShadow=true;sun.shadow.mapSize.set(1536,1536);sun.shadow.bias=-0.0006;scene.add(sun);scene.add(sun.target);
 const fill=new THREE.DirectionalLight(0xdfe8f0,0.25);fill.position.set(200,120,200);scene.add(fill);
 let model=null,dims=null,visible=true,dirty=true;
 const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 if(reduce)controls.autoRotate=false;
-controls.addEventListener('change',()=>dirty=true);
-function loop(){requestAnimationFrame(loop);if(!visible)return;if(controls.autoRotate||controls.enableDamping)controls.update();if(dirty||controls.autoRotate){renderer.render(scene,camera);dirty=false}}
+window.TMView={controls,camera};
+function loop(){requestAnimationFrame(loop);if(!visible)return;controls.update();if(dirty){renderer.render(scene,camera);dirty=false}}
 loop();
 new IntersectionObserver(e=>{visible=e[0].isIntersecting}).observe(viewer);
 function resize(){const r=viewer.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/Math.max(1,r.height);camera.updateProjectionMatrix();dirty=true}
 new ResizeObserver(resize).observe(viewer);
-$('vhint').addEventListener('click',()=>{const on=!controls.enabled;controls.enabled=on;controls.autoRotate=!on&&!reduce;viewer.classList.toggle('live',on);
-  $('vhint').textContent=on?'Done':'Tap to spin in 3D';});
+{const el=renderer.domElement,pts=new Map();let last=null,idle,lastTap=0;
+  if(matchMedia('(hover:hover)').matches)$('vhint').textContent='Drag to spin · pinch or ctrl+scroll to zoom';
+  const touched=()=>{controls.autoRotate=false;$('vhint').classList.add('gone');clearTimeout(idle);
+    if(!reduce)idle=setTimeout(()=>{controls.autoRotate=true},7000)};
+  const two=()=>{const [a,b]=[...pts.values()];return{d:Math.hypot(a.x-b.x,a.y-b.y),y:(a.y+b.y)/2}};
+  el.addEventListener('pointerdown',e=>{pts.set(e.pointerId,{x:e.clientX,y:e.clientY});touched();controls.vT=controls.vP=0;
+    last=pts.size===2?two():{x:e.clientX,y:e.clientY};if(e.pointerType==='mouse')el.setPointerCapture(e.pointerId);
+    if(pts.size===1&&e.pointerType!=='mouse'){const t=Date.now();if(t-lastTap<300)controls.reset();lastTap=t}});
+  el.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId)||!last)return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    const h=el.clientHeight||300;
+    if(pts.size===1){const dx=e.clientX-last.x,dy=e.clientY-last.y;controls.vT=-dx/h*1.6;controls.vP=(e.pointerType==='mouse'?-dy:0)/h*2.2;
+      controls.sph.theta+=controls.vT;controls.sph.phi+=controls.vP;controls.vT*=0.5;controls.vP*=0.5;last={x:e.clientX,y:e.clientY}}
+    else if(pts.size===2){const n=two();controls.sph.radius*=last.d/Math.max(1,n.d);controls.sph.phi-=(n.y-last.y)/h*2;controls.vT=controls.vP=0;last=n}
+    controls.apply();touched()});
+  const up=e=>{pts.delete(e.pointerId);last=pts.size===1?{...[...pts.values()][0]}:pts.size===2?two():null};
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>el.addEventListener(t,up));
+  el.addEventListener('dblclick',()=>{controls.reset();touched()});
+  el.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();controls.sph.radius*=Math.exp(e.deltaY*0.01);controls.apply();touched()},{passive:false});
+  viewer.addEventListener('gesturestart',e=>e.preventDefault());}
+/* Flick through the other example models while browsing (hidden once they've added their own track or picked a route) */
+const EX=['ebc','kili','lap','chicago','bibbulmun','overland','tmb','kokoda','inca','kosci','larapinta','c2c','heysen','aawt','munda'].filter(k=>SAMPLES[k]);
+let exI=0;const exGo=d=>{exI=(exI+d+EX.length)%EX.length;$('vcount').textContent=`${exI+1} / ${EX.length}`;loadSample(EX[exI],false)};
+$('vprev').addEventListener('click',()=>exGo(-1));$('vnext').addEventListener('click',()=>exGo(1));$('vcount').textContent=`1 / ${EX.length}`;
 
 function kmDims(g){const kx=111.32*Math.cos((g.lat0+g.lat1)/2*Math.PI/180);return{wkm:(g.lon1-g.lon0)*kx,hkm:(g.lat1-g.lat0)*110.57}}
 function build(keepCam){
@@ -449,7 +485,7 @@ function build(keepCam){
   const D=Math.max(W,H);sun.position.set(-D*0.9,D*1.2,-D*0.6);
   const sc=sun.shadow.camera;sc.left=-D;sc.right=D;sc.top=D;sc.bottom=-D;sc.near=1;sc.far=D*4;sc.updateProjectionMatrix();
   if(!keepCam){const f=Math.max(1,Math.pow(1.15/camera.aspect,0.85));camera.position.set(D*0.22*f,D*0.95*f,D*1.5*f);controls.target.set(0,base,D*0.03);
-    controls.minDistance=D*0.4;controls.maxDistance=D*4;controls.update()}
+    controls.minDistance=D*0.4;controls.maxDistance=D*4;controls.save();controls.apply()}
   $('vlabel').innerHTML=`<b>${esc(t.name)}</b>${esc(S.size.n)} · ${W.toFixed(0)} × ${H.toFixed(0)} mm<span class="v-pre">Preliminary 3D preview. We send an order confirmation with your final model before we make anything.</span>`;dirty=true;
 }
 function xz(lat,lon){const g=S.track.grid,d=dims;return[-d.W/2+(lon-g.lon0)/(g.lon1-g.lon0)*d.W,-d.H/2+(g.lat1-lat)/(g.lat1-g.lat0)*d.H]}
@@ -683,7 +719,7 @@ FONTS.forEach(f=>{const b=document.createElement('button');b.type='button';b.cla
 
 /* ---------- summary, sticky bar, checkout ---------- */
 function trackLabel(){if(S.source==='strava')return`Strava · ${S.strava.length} activit${S.strava.length>1?'ies':'y'}`;if(S.source==='file')return`${S.files} GPX file${S.files>1?'s':''}`;if(S.source==='link')return S.link.length>34?S.link.slice(0,34)+'…':S.link;if(S.source.startsWith('famous:'))return S.source.slice(7);return'Not added yet'}
-function sync(){
+function sync(){$('vnav').hidden=S.source!=='example';
   COLOURS.forEach(c=>$('col-'+c.id).setAttribute('aria-checked',c===S.colour));$('swname').textContent=S.colour.n;
   FONTS.forEach(f=>$('fnt-'+f.id.replace(/\s/g,'')).setAttribute('aria-checked',f.id===S.font));
   const hasTrack=S.source!=='example';
