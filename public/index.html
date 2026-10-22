@@ -479,10 +479,21 @@ function build(keepCam){
   const tp=new THREE.Mesh(new THREE.PlaneGeometry(W,base),new THREE.MeshBasicMaterial({map:textTexture(W,base),transparent:true}));
   tp.position.set(0,base/2,H/2+0.06);tp.name='text';model.add(tp);
   const mat=new THREE.MeshStandardMaterial({color:new THREE.Color(S.colour.hex),roughness:0.6});
-  const pts=t.route.map(([la,lo])=>{const[x,z]=xz(la,lo);return new THREE.Vector3(x,heightAt(x,z)+0.9*k,z)});
-  if(pts.length>1){const tube=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,false,'centripetal'),Math.min(3000,pts.length*3),1.2*k,6,false),mat);tube.castShadow=true;model.add(tube)}
+  /* Route: resampled every half grid cell and lifted over the highest ground under the whole tube, so it never dips into
+     a ridge between two track points (that's what made it vanish on Inca, Kokoda and the Alps at low angles). */
+  const rad=1.2*k,cell=W/(w-1),hMax=(x,z,r)=>{let m=heightAt(x,z);for(let a=0;a<8;a++){const q=a*Math.PI/4;m=Math.max(m,heightAt(x+Math.cos(q)*r,z+Math.sin(q)*r))}return m};
+  const raw=t.route.map(([la,lo])=>xz(la,lo));let L=0;for(let n=1;n<raw.length;n++)L+=Math.hypot(raw[n][0]-raw[n-1][0],raw[n][1]-raw[n-1][1]);
+  const step=Math.max(cell*0.5,L/5000),pts=[];
+  if(raw.length>1){let acc=0;pts.push(raw[0]);for(let n=1;n<raw.length;n++){const a=raw[n-1],b=raw[n],d=Math.hypot(b[0]-a[0],b[1]-a[1]);
+      for(let u=step-acc;u<d;u+=step)pts.push([a[0]+(b[0]-a[0])*u/d,a[1]+(b[1]-a[1])*u/d]);acc=(acc+d)%step}pts.push(raw[raw.length-1])}
+  let ys=pts.map(([x,z])=>hMax(x,z,rad*1.6));ys=ys.map((y,n)=>Math.max(y,ys[n-1]??y,ys[n+1]??y));   // widen the lift a touch along the line
+  const v3=pts.map(([x,z],n)=>new THREE.Vector3(x,ys[n]+rad*0.85,z));
+  if(v3.length>1){const tube=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(v3,false,'centripetal',0.3),Math.min(8000,v3.length*2),rad,6,false),mat);tube.castShadow=true;tube.renderOrder=1;model.add(tube);
+    // faint see-through copy, so the line still reads where a mountain hides it at low angles
+    const ghost=new THREE.Mesh(tube.geometry,new THREE.MeshBasicMaterial({color:new THREE.Color(S.colour.hex),transparent:true,opacity:0.28,depthTest:false,depthWrite:false}));
+    ghost.renderOrder=2;model.add(ghost)}
   if(S.size.id!=='mini')t.stops.forEach((st,i)=>{const[x,z]=xz(st.lat,st.lon);if(Math.abs(x)>W/2||Math.abs(z)>H/2)return;
-    const gy=heightAt(x,z),r=(t.lake!=null?2.0:2.6)*k*(i>=9?1.15:1),ph=(t.lake!=null?2.2:4.5)*k;
+    const r=(t.lake!=null?2.0:2.6)*k*(i>=9?1.15:1),gy=hMax(x,z,r),ph=(t.lake!=null?2.2:4.5)*k;
     const c=new THREE.Mesh(new THREE.CylinderGeometry(r,r,ph+2,24),mat);c.position.set(x,gy+ph/2-1,z);c.castShadow=true;model.add(c);
     const cap=new THREE.Mesh(new THREE.CircleGeometry(r*0.98,28),new THREE.MeshBasicMaterial({map:numTexture(st.label||i+1,S.colour.hex)}));
     cap.rotation.x=-Math.PI/2;cap.position.set(x,gy+ph+0.03,z);model.add(cap)});
