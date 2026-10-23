@@ -215,7 +215,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
     <div>
       <h1>Your adventure, <span>made real.</span></h1>
       <p class="lede">Send the GPS track from your hike, ride or race and we sculpt the real mountains and valleys from satellite data, with your exact route set in. No GPS file? No worries: pick a famous route.</p>
-      <div class="price-line"><b>Classic A$99</b><small>Mini A$59 · Signature A$150. We confirm your 3D model with you before we make it.</small></div>
+      <div class="price-line"><b>Classic A$99</b><small>Signature A$150. We confirm your 3D model with you before we make it.</small></div>
       <ul class="trust">
         <li>Garmin · Strava · Komoot</li><li>No GPS file? No worries</li><li>Satellite elevation data</li><li>Your name and dates on the base</li>
       </ul>
@@ -369,7 +369,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
         <details><summary>I don't have a GPS file. Can you still make one?</summary>
           <p>No worries. Tap "No GPS file" in step 1 and pick a famous route, or type your favourite (for example "Bibbulmun Track, Albany to Walpole"). We build it from the official route and send an order confirmation with the 3D model.</p></details>
         <details><summary>What are the sizes?</summary>
-          <p>Mini is 150 mm on the long side, Classic 200 mm and Signature 250 mm. Height depends on the terrain; big mountains stand 5–7 cm tall.</p></details>
+          <p>Classic is 200 mm on the long side and Signature 250 mm. Height depends on the terrain; big mountains stand 5–7 cm tall.</p></details>
         <details><summary>What is it made of?</summary>
           <p>Precision 3D printed in matte PLA, in layers 0.08–0.2 mm thin, then checked before it ships: white terrain, grey engraved text and a scarlet red slot-in route with numbered stops. Display it indoors and out of direct sun.</p></details>
         <details><summary>Shipping and timing</summary>
@@ -392,9 +392,9 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const SAMPLES=JSON.parse($('samples').textContent);
-const SIZES=[{id:'mini',n:'Mini',mm:150,price:59,d:'150 mm · single colour route'},{id:'classic',n:'Classic',mm:200,price:99,tag:'Most popular',d:'200 mm · slot-in route, numbered stops'},{id:'sig',n:'Signature',mm:250,price:150,d:'250 mm · slot-in route, stops, landmark dots'}];
+const SIZES=[{id:'classic',n:'Classic',mm:200,price:99,tag:'Most popular',d:'200 mm · slot-in route, numbered stops'},{id:'sig',n:'Signature',mm:250,price:150,d:'250 mm · slot-in route, stops, landmark dots'}];
 const COLOURS=[{id:'red',n:'Scarlet red',hex:'#c8302a'}]   // one route colour for now (Bambu PLA Matte Scarlet Red);
-const S={track:null,size:SIZES[1],colour:COLOURS[0],font:'Sora',source:'example',link:'',files:0,exag:1.5};
+const S={track:null,size:SIZES[0],colour:COLOURS[0],font:'Sora',source:'example',link:'',files:0,exag:1.5};
 
 /* ---- marketing pixel hook: replace with Meta Pixel / GA4 when live ---- */
 function track(ev,data){try{if(window.fbq)window.fbq('track',ev,data||{})}catch(e){}}
@@ -492,7 +492,7 @@ function build(keepCam){
     // faint see-through copy, so the line still reads where a mountain hides it at low angles
     const ghost=new THREE.Mesh(tube.geometry,new THREE.MeshBasicMaterial({color:new THREE.Color(S.colour.hex),transparent:true,opacity:0.28,depthTest:false,depthWrite:false}));
     ghost.renderOrder=2;model.add(ghost)}
-  if(S.size.id!=='mini')t.stops.forEach((st,i)=>{const[x,z]=xz(st.lat,st.lon);if(Math.abs(x)>W/2||Math.abs(z)>H/2)return;
+  t.stops.forEach((st,i)=>{const[x,z]=xz(st.lat,st.lon);if(Math.abs(x)>W/2||Math.abs(z)>H/2)return;
     const r=(t.lake!=null?2.0:2.6)*k*(i>=9?1.15:1),gy=hMax(x,z,r),ph=(t.lake!=null?2.2:4.5)*k;
     const c=new THREE.Mesh(new THREE.CylinderGeometry(r,r,ph+2,24),mat);c.position.set(x,gy+ph/2-1,z);c.castShadow=true;model.add(c);
     const cap=new THREE.Mesh(new THREE.CircleGeometry(r*0.98,28),new THREE.MeshBasicMaterial({map:numTexture(st.label||i+1,S.colour.hex)}));
