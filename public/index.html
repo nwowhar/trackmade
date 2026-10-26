@@ -87,6 +87,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .v-label b{display:block;font-family:var(--f-display);font-size:16px;color:var(--ink);letter-spacing:.01em}
 .v-hint{position:absolute;right:10px;bottom:10px;font:500 12px var(--f-body);background:var(--card);color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:6px 11px;pointer-events:none;transition:opacity .6s}
 .v-hint.gone{opacity:0}
+:has(> .v-nav:not([hidden])) > .v-hint{bottom:56px}
 .v-nav{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:2px;font:500 12px var(--f-data);color:var(--muted)}
 .v-nav[hidden]{display:none}
 .v-nav button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;font:600 20px/1 var(--f-body);color:var(--ink);cursor:pointer}
@@ -275,7 +276,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
         <p class="hint">Your own GPS track makes a fully personal model: your exact line, dates and distance. No GPS file? No worries, pick a route instead.</p>
         <div class="seg" role="tablist" aria-label="Choose your track">
           <button role="tab" id="tab-link" aria-selected="true" data-tab="link" type="button">Paste link</button>
-          <button role="tab" id="tab-file" aria-selected="false" data-tab="file" type="button">GPX file</button>
+          <button role="tab" id="tab-file" aria-selected="false" data-tab="file" type="button">Upload file</button>
           <button role="tab" id="tab-famous" aria-selected="false" data-tab="famous" type="button">No GPS file</button>
         </div>
         <div data-pane="link">
@@ -300,11 +301,12 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
           <label class="field" for="link">Activity link from Strava, Garmin Connect, Komoot or AllTrails
             <textarea id="link" rows="2" inputmode="url" placeholder="https://www.strava.com/activities/…" autocomplete="off" style="width:100%;font:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px"></textarea></label>
           <p class="hint">Easiest on a phone. Set the activity to <b>Everyone</b> so we can see it. Trip over several days? Paste one link per day. We download the track and send an order confirmation with your 3D model before we make anything.</p>
+          <p class="hint">Can’t get a link? Tap <b>No GPS file</b>, type the trail and your dates, and we’ll trace it. A screenshot of your map helps: reply to your order email with it.</p>
           <div id="link-msg"></div>
         </div>
         <div data-pane="file" hidden>
-          <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose GPX files">
-            <strong>Choose .gpx files</strong><small>Multi-day trip? Select every day at once.</small>
+          <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose track files">
+            <strong>Choose your track file</strong><small>GPX, FIT, TCX, KML or a Garmin zip. Multi-day trip? Select every day at once.</small>
           </div>
           <p class="ok-line">Fully personal: your exact line, dates, distance and stops.</p>
           <input type="file" id="file" multiple hidden>
@@ -320,7 +322,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
             <button class="chip" data-s="bibbulmun" aria-pressed="false" type="button">Bibbulmun Track</button><button class="chip" data-s="heysen" aria-pressed="false" type="button">Heysen Trail</button><button class="chip" data-s="overland" aria-pressed="false" type="button">Overland Track</button><button class="chip" data-s="larapinta" aria-pressed="false" type="button">Larapinta Trail</button><button class="chip" data-s="c2c" aria-pressed="false" type="button">Cape to Cape</button><button class="chip" data-s="aawt" aria-pressed="false" type="button">Australian Alps Walking Track</button><button class="chip" data-s="munda" aria-pressed="false" type="button">Munda Biddi</button><button class="chip" data-s="kokoda" aria-pressed="false" type="button">Kokoda Track</button><button class="chip" data-s="tmb" aria-pressed="false" type="button">Tour du Mont Blanc</button><button class="chip" data-s="inca" aria-pressed="false" type="button">Inca Trail</button><button class="chip" data-s="kosci" aria-pressed="false" type="button">Mt Kosciuszko</button>
           </div>
           <label class="field" for="routeReq">Can't see yours? Type any trail, ride, race or track and we'll build it
-            <input id="routeReq" type="text" placeholder="e.g. Bibbulmun Track, Albany to Walpole" autocomplete="off"></label>
+            <input id="routeReq" type="text" placeholder="e.g. Bibbulmun Track, Albany to Walpole, 3–9 March" autocomplete="off"></label>
           <p class="hint">We build it from the official route and send an order confirmation with the 3D model before we make it.</p>
         </div>
       </div>
@@ -356,7 +358,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
     <div>
       <h2>How it works</h2>
       <ol class="how">
-        <li><div><b>Send your track</b><span>A link or GPX file from your watch or app. No GPS file? Pick a famous route or ask for your favourite.</span></div></li>
+        <li><div><b>Send your track</b><span>A link or file from your watch or app. No GPS file? Pick a famous route or ask for your favourite.</span></div></li>
         <li><div><b>Approve your order confirmation</b><span>We set the crop, stops and text and email you the final 3D model. Change anything for free.</span></div></li>
         <li><div><b>Made and shipped</b><span>Made to order in Australia, packed in foam, at your door within 14 days.</span></div></li>
       </ol>
@@ -365,7 +367,9 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
       <h2>Questions</h2>
       <div style="margin-top:14px">
         <details><summary>How do I find my activity link?</summary>
-          <ol><li><b>Strava:</b> tap <b>Connect with Strava</b> in step 1 and tick your activities. Or open the activity → Share → Copy link.</li><li><b>Garmin Connect:</b> open the activity → ⋯ → Share → Copy link (set the activity to public first).</li><li><b>Komoot / AllTrails:</b> open the tour → Share → Copy link.</li></ol></details>
+          <ol><li><b>Strava:</b> tap <b>Connect with Strava</b> in step 1 and tick your activities. Or open the activity → Share → Copy link.</li><li><b>Garmin Connect:</b> open the activity, tap the cog (⚙) → Edit → Privacy → <b>Everyone</b>, then Share → copy the link. You don’t need to download anything; we fetch the track from the link.</li><li><b>Komoot / AllTrails:</b> open the tour → Share → Copy link.</li></ol><p>Stuck? Skip it. Tap <b>No GPS file</b>, tell us the trail and dates, and reply to your order email with a screenshot of your map. Nothing is made until you approve your 3D model.</p></details>
+        <details><summary>Which files can I upload?</summary>
+          <p>GPX, FIT, TCX, KML and KMZ, plus the zip Garmin Connect gives you on a computer (Export Original). Several files for a multi-day trip is fine. On a phone a link is usually easier than a file.</p></details>
         <details><summary>I don't have a GPS file. Can you still make one?</summary>
           <p>No worries. Tap "No GPS file" in step 1 and pick a famous route, or type your favourite (for example "Bibbulmun Track, Albany to Walpole"). We build it from the official route and send an order confirmation with the 3D model.</p></details>
         <details><summary>What are the sizes?</summary>
@@ -578,15 +582,71 @@ const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DE
 function dateRange(a,b){const A=new Date(a),B=new Date(b);if(A.toDateString()===B.toDateString())return`${A.getDate()} ${MON[A.getMonth()]} ${A.getFullYear()}`;
   if(A.getMonth()===B.getMonth()&&A.getFullYear()===B.getFullYear())return`${A.getDate()}–${B.getDate()} ${MON[A.getMonth()]} ${A.getFullYear()}`;
   return`${A.getDate()} ${MON[A.getMonth()]} – ${B.getDate()} ${MON[B.getMonth()]} ${B.getFullYear()}`}
+// Track files of every common kind, read on the phone and turned into GPX: GPX, Garmin FIT (and Garmin's "Export Original" zip), TCX, KML/KMZ
+const FIT_EPOCH=631065600e3,SEMI=180/2**31,TRACK_EXT=/\.(gpx|fit|tcx|kml|kmz|zip)$/i;
+function xmlPts(txt){const x=new DOMParser().parseFromString(txt,'application/xml');if(x.querySelector('parsererror'))return null;
+  const root=x.documentElement.localName.toLowerCase(),pts=[],T=s=>{const v=s?Date.parse(s.trim()):NaN;return isFinite(v)?v:null},kid=(el,n)=>[...el.children].find(c=>c.localName===n);let name='';
+  const firstName=sel=>{for(const el of x.getElementsByTagName('*'))if(sel.includes(el.localName)&&el.textContent.trim()&&!el.children.length)return el.textContent.trim();return''};
+  if(root==='gpx'){const nm=x.querySelector('trk > name, metadata > name, rte > name');name=nm?nm.textContent.trim():'';
+    let ps=x.getElementsByTagNameNS('*','trkpt');if(!ps.length)ps=x.getElementsByTagNameNS('*','rtept');
+    for(const p of ps){const e=kid(p,'ele'),t=kid(p,'time');pts.push({lat:+p.getAttribute('lat'),lon:+p.getAttribute('lon'),ele:e?+e.textContent:null,t:t?T(t.textContent):null})}}
+  else if(root==='trainingcenterdatabase'){name=firstName(['Name','Notes']);
+    for(const p of x.getElementsByTagNameNS('*','Trackpoint')){const pos=kid(p,'Position');if(!pos)continue;const la=kid(pos,'LatitudeDegrees'),lo=kid(pos,'LongitudeDegrees'),e=kid(p,'AltitudeMeters'),t=kid(p,'Time');
+      if(la&&lo)pts.push({lat:+la.textContent,lon:+lo.textContent,ele:e?+e.textContent:null,t:t?T(t.textContent):null})}}
+  else if(root==='kml'){name=firstName(['name']);
+    for(const tr of x.getElementsByTagNameNS('*','Track')){const w=[...tr.children].filter(c=>c.localName==='when'),c=[...tr.children].filter(c=>c.localName==='coord');
+      c.forEach((el,i)=>{const q=el.textContent.trim().split(/\s+/).map(Number);pts.push({lat:q[1],lon:q[0],ele:q.length>2?q[2]:null,t:w[i]?T(w[i].textContent):null})})}
+    if(!pts.length)for(const ls of x.getElementsByTagNameNS('*','LineString')){const c=kid(ls,'coordinates');if(!c)continue;
+      c.textContent.trim().split(/\s+/).forEach(tok=>{const q=tok.split(',').map(Number);if(q.length>1)pts.push({lat:q[1],lon:q[0],ele:q.length>2?q[2]:null,t:null})})}}
+  else return null;
+  return{name,pts}}
+function fitPts(buf){const d=new DataView(buf),u=new Uint8Array(buf);
+  if(u.length<14||String.fromCharCode(u[8],u[9],u[10],u[11])!=='.FIT')return null;
+  let pos=u[0];const end=Math.min(u.length,u[0]+d.getUint32(4,true)),defs={},pts=[];let lastTs=null;
+  while(pos<end){const h=u[pos++];let local,hts=null;
+    if(h&0x80){local=(h>>5)&3;const off=h&0x1f;if(lastTs!=null)lastTs+=((off-(lastTs&0x1f))&0x1f);hts=lastTs}
+    else if(h&0x40){local=h&15;const le=u[pos+1]!==1,g=d.getUint16(pos+2,le),n=u[pos+4];pos+=5;const f=[];for(let i=0;i<n;i++)f.push([u[pos+3*i],u[pos+3*i+1]]);pos+=3*n;
+      let dev=0;if(h&0x20){const nd=u[pos++];for(let i=0;i<nd;i++)dev+=u[pos+3*i+1];pos+=3*nd}defs[local]={g,le,f,dev};continue}
+    else local=h&15;
+    const df=defs[local];if(!df)throw new Error('damaged FIT file');const r={};
+    for(const[num,sz]of df.f){if(pos+sz>u.length)break;
+      if(df.g===20&&(num===0||num===1)&&sz===4)r[num]=d.getInt32(pos,df.le);
+      else if(df.g===20&&num===2&&sz===2)r[2]=d.getUint16(pos,df.le);
+      else if(df.g===20&&num===78&&sz===4)r[78]=d.getUint32(pos,df.le);
+      else if(num===253&&sz===4){r[253]=d.getUint32(pos,df.le);lastTs=r[253]}
+      pos+=sz}
+    pos+=df.dev;
+    if(df.g!==20)continue;const ts=r[253]!=null?r[253]:hts;
+    if(r[0]==null||r[1]==null||r[0]===0x7fffffff||r[1]===0x7fffffff)continue;
+    const alt=r[78]!=null&&r[78]!==0xffffffff?r[78]:(r[2]!=null&&r[2]!==0xffff?r[2]:null);
+    pts.push({lat:r[0]*SEMI,lon:r[1]*SEMI,ele:alt!=null?alt/5-500:null,t:ts!=null?ts*1e3+FIT_EPOCH:null})}
+  return{name:'',pts}}
+async function unzip(buf){const d=new DataView(buf),u=new Uint8Array(buf),out=[];let e=u.length-22;
+  while(e>=0&&d.getUint32(e,true)!==0x06054b50)e--;if(e<0)throw new Error('damaged zip');
+  let p=d.getUint32(e+16,true);const n=d.getUint16(e+10,true);
+  for(let i=0;i<n;i++){if(d.getUint32(p,true)!==0x02014b50)break;const m=d.getUint16(p+10,true),cs=d.getUint32(p+20,true),us=d.getUint32(p+24,true),fl=d.getUint16(p+28,true),xl=d.getUint16(p+30,true),cl=d.getUint16(p+32,true),off=d.getUint32(p+42,true);
+    const name=new TextDecoder().decode(u.subarray(p+46,p+46+fl));p+=46+fl+xl+cl;
+    if(!/\.(gpx|fit|tcx|kml)$/i.test(name)||us>60e6)continue;
+    const start=off+30+d.getUint16(off+26,true)+d.getUint16(off+28,true),raw=u.slice(start,start+cs);
+    let data;if(m===0)data=raw.buffer;else if(m===8){if(typeof DecompressionStream==='undefined')throw new Error('unzip it first and choose the file inside');
+      data=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()}else continue;
+    out.push({name,buf:data})}
+  return out}
+async function readTrack(name,buf){const u=new Uint8Array(buf.slice(0,12));
+  if(u[0]===0x50&&u[1]===0x4b){const r={name:'',pts:[]};for(const f of await unzip(buf)){const q=await readTrack(f.name,f.buf);if(q){r.name=r.name||q.name;r.pts.push(...q.pts)}}return r}
+  if(String.fromCharCode(u[8],u[9],u[10],u[11])==='.FIT')return fitPts(buf);
+  return xmlPts(new TextDecoder().decode(buf))}
 async function handleFiles(list){
-  const files=[...list].filter(f=>/\.gpx$/i.test(f.name));const msg=$('file-msg');
-  if(!files.length){msg.className='err-line';msg.textContent='Those aren’t .gpx files. Paste the activity link instead, it’s easier on a phone.';return}
-  let pts=[],names=[];
-  for(const f of files){const x=new DOMParser().parseFromString(await f.text(),'application/xml');const nm=x.querySelector('trk > name, metadata > name');if(nm&&nm.textContent.trim())names.push(nm.textContent.trim());
-    x.querySelectorAll('trkpt, rtept').forEach(p=>{const t=p.querySelector('time'),e=p.querySelector('ele');pts.push({lat:+p.getAttribute('lat'),lon:+p.getAttribute('lon'),ele:e?+e.textContent:null,t:t?Date.parse(t.textContent):null})})}
-  pts=pts.filter(p=>isFinite(p.lat)&&isFinite(p.lon));
-  if(pts.length<2){msg.className='err-line';msg.textContent='No track found in that file. Try the activity link instead.';return}
-  await useTrack(pts,names,{msg,count:files.length,unit:'file',units:'files',source:'file',after:()=>{S.files=files.length;S.fileNames=files.map(f=>f.name)}});
+  const all=[...list],msg=$('file-msg');let pts=[],names=[],used=[],bad=[];
+  if(!all.length)return;msg.className='hint';msg.textContent='Reading…';
+  for(const f of all){if(f.size>60e6){bad.push(f.name);continue}
+    let r=null;try{r=await readTrack(f.name,await f.arrayBuffer())}catch(e){r=null}
+    const ok=r&&r.pts.filter(p=>isFinite(p.lat)&&isFinite(p.lon)&&Math.abs(p.lat)<=90&&Math.abs(p.lon)<=180);
+    if(!ok||ok.length<2){bad.push(f.name);continue}
+    if(r.name)names.push(r.name);pts.push(...ok);used.push(f.name)}
+  if(pts.length<2){msg.className='err-line';msg.innerHTML=(all.some(f=>TRACK_EXT.test(f.name))?'We couldn’t find a GPS track in that file (indoor and treadmill activities have none).':'That isn’t a track file. We take GPX, FIT, TCX, KML or a Garmin zip.')+' Paste the activity link instead, or pick <b>No GPS file</b> and tell us the trail.';return}
+  await useTrack(pts,names,{msg,count:used.length,unit:'file',units:'files',source:'file',after:()=>{S.files=used.length;S.fileNames=used}});
+  if(bad.length)msg.textContent+=` (Skipped ${bad.join(', ')}: no track in it.)`;
 }
 async function useTrack(pts,names,o){wantSample='';const msg=o.msg;
   if(pts.every(p=>p.t!=null))pts.sort((a,b)=>a.t-b.t);
@@ -696,7 +756,7 @@ setTimeout(function(){const h=location.hash;if(API===null)return;
     const sz=SIZES.find(x=>x.id===st.size);if(sz){S.size=sz;$('size-'+sz.id).checked=true}const c=COLOURS.find(x=>x.id===st.colour);if(c)S.colour=c;
     if(st.font)setFont(st.font);if(st.title)$('t-title').value=st.title;if(st.sub)$('t-sub').value=st.sub;if(st.email)$('email').value=st.email}catch(e){}};
   if(/^#strava/.test(h)){restore();history.replaceState(null,'',location.pathname+location.search);setTimeout(()=>$('step1').scrollIntoView({block:'start'}),300)}
-  const why={'#strava-denied':'No worries. Paste a link or upload a GPX file instead.','#strava-noscope':'Strava didn’t share your activities. Connect again and leave “View data about your activities” ticked.','#strava-error':'Couldn’t connect to Strava. Try again, or paste a link instead.','#strava-config':'Strava isn’t set up on this site yet. Paste a link or upload a GPX file instead.'};
+  const why={'#strava-denied':'No worries. Paste a link or upload your track file instead.','#strava-noscope':'Strava didn’t share your activities. Connect again and leave “View data about your activities” ticked.','#strava-error':'Couldn’t connect to Strava. Try again, or paste a link instead.','#strava-config':'Strava isn’t set up on this site yet. Paste a link or upload your track file instead.'};
   if(why[h]){svMsg(why[h],'err-line');return}
   if(/^#strava/.test(h))sync();
   svLoad(1).catch(e=>{if(e.status===429)svMsg(esc(e.message),'err-line')})},0);
@@ -735,7 +795,7 @@ FONTS.forEach(f=>{const b=document.createElement('button');b.type='button';b.cla
   b.innerHTML=`<b style='font:${f.css.replace('{px}','20')}'>TRAIL</b><span>${f.n}</span>`;b.addEventListener('click',()=>setFont(f.id));$('fonts').appendChild(b)});
 
 /* ---------- summary, sticky bar, checkout ---------- */
-function trackLabel(){if(S.source==='strava')return`Strava · ${S.strava.length} activit${S.strava.length>1?'ies':'y'}`;if(S.source==='file')return`${S.files} GPX file${S.files>1?'s':''}`;if(S.source==='link')return S.link.length>34?S.link.slice(0,34)+'…':S.link;if(S.source.startsWith('famous:'))return S.source.slice(7);return'Not added yet'}
+function trackLabel(){if(S.source==='strava')return`Strava · ${S.strava.length} activit${S.strava.length>1?'ies':'y'}`;if(S.source==='file')return`${S.files} track file${S.files>1?"s":""}`;if(S.source==='link')return S.link.length>34?S.link.slice(0,34)+'…':S.link;if(S.source.startsWith('famous:'))return S.source.slice(7);return'Not added yet'}
 function sync(){$('vnav').hidden=S.source!=='example';
   COLOURS.forEach(c=>$('col-'+c.id).setAttribute('aria-checked',c===S.colour));$('swname').textContent=S.colour.n;
   FONTS.forEach(f=>$('fnt-'+f.id.replace(/\s/g,'')).setAttribute('aria-checked',f.id===S.font));
