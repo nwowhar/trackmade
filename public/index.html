@@ -560,7 +560,9 @@ const LINK_RX=/(strava\.com|strava\.app\.link|garmin\.com|komoot\.(com|de)|alltr
 $('link').addEventListener('input',e=>{const v=e.target.value.trim();S.link=v;const m=$('link-msg');
   if(!v){m.innerHTML='';if(S.source==='link')S.source='example';sync();return}
   const n=(v.match(/https?:\/\//gi)||[]).length;
-  if(LINK_RX.test(v)){S.source='link';m.innerHTML=`<p class="ok-line">Got it${n>1?`: ${n} links`:''}. We’ll download the track and send your order confirmation.</p>`}
+  if(/garmin\.com/i.test(v)){S.source='link';m.innerHTML=`<p class="ok-line">Got it${n>1?`: ${n} links`:''}. We’ll download the track and send your order confirmation.</p>`+
+    '<p class="hint">Garmin only shares activities set to <b>Everyone</b>. In the Garmin Connect app open the activity, tap the cog (⚙) → Edit → Privacy → Everyone. Or on a computer, open it at connect.garmin.com, click the cog → <b>Export to GPX</b> and upload the file above.</p>'}
+  else if(LINK_RX.test(v)){S.source='link';m.innerHTML=`<p class="ok-line">Got it${n>1?`: ${n} links`:''}. We’ll download the track and send your order confirmation.</p>`}
   else if(/^https?:\/\//i.test(v)){S.source='link';m.innerHTML='<p class="hint">We’ll check this link by hand. If it isn’t public we’ll email you.</p>'}
   else{S.source='link';m.innerHTML='<p class="hint">No link? A route name works too, e.g. “Overland Track, 6 days”.</p>'}
   sync()});
