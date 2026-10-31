@@ -11,7 +11,7 @@
    On wide screens the 3D preview sits left and sticks while the steps scroll on the right. */
 :root{
   --bg:#f4f5f6; --card:#ffffff; --ink:#1f252b; --muted:#5d6872; --line:#dde1e5; --soft:#eef0f2;
-  --accent:#e8322a; --accent-ink:#ffffff; --ok:#2f7d4f; --stage:#e3e7ea;
+  --accent:#d42a22; --accent-ink:#ffffff; --ok:#2f7d4f; --stage:#e3e7ea;
   --f-display:"Sora","Segoe UI",system-ui,sans-serif;
   --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-data:"Sora","Segoe UI",system-ui,sans-serif;
@@ -27,7 +27,7 @@
 [hidden]{display:none!important}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 96px}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
 .wrap{max-width:1120px;margin:0 auto}
@@ -199,36 +199,176 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
 .bar .amt{font-family:var(--f-display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}
 .bar .what{font-size:12.5px;color:var(--muted)}
 .bar .cta{padding:12px 20px;white-space:nowrap}
+
+/* ===== Editorial layer (Nov 2026): announcement bar, slim caps nav, photo-led hero and tiles,
+   promise + badges, story, contact and a proper footer. Small caps labels, generous whitespace. ===== */
+.caps{font:600 12px var(--f-display);letter-spacing:.14em;text-transform:uppercase}
+.announce{margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));background:var(--accent);color:#fff;text-align:center;
+  font:600 11.5px var(--f-display);letter-spacing:.12em;text-transform:uppercase;padding:9px 16px;line-height:1.4}
+header.top{position:relative;padding-block:14px;gap:16px}
+.logo svg{height:34px}
+nav.menu{display:flex;align-items:center;gap:26px}
+nav.menu a{color:var(--ink);text-decoration:none;font:600 12px var(--f-display);letter-spacing:.14em;text-transform:uppercase;padding:12px 0;border-bottom:2px solid transparent}
+nav.menu a:hover{border-color:var(--accent)}
+.ig{display:inline-grid;place-items:center;width:44px;height:44px;color:var(--ink)}
+.ig svg{width:20px;height:20px}
+.navbtn{display:none;width:44px;height:44px;border:0;background:none;color:var(--ink);cursor:pointer;padding:0}
+.navbtn svg{width:24px;height:24px}
+@media (max-width:899px){
+  nav.menu{display:none;position:absolute;top:100%;left:0;right:0;z-index:30;flex-direction:column;align-items:stretch;gap:0;background:var(--card);
+    border:1px solid var(--line);border-radius:var(--r);box-shadow:0 18px 40px rgba(0,0,0,.12);padding:6px 16px}
+  nav.menu.open{display:flex}
+  nav.menu a{padding:14px 0;border-bottom:1px solid var(--line)}nav.menu a:last-child{border-bottom:0}
+  .navbtn{display:inline-grid;place-items:center}
+  header.top .ig{display:none}}
+.hdr-r{display:flex;align-items:center;gap:6px}
+
+/* hero: full-bleed photo with the headline on its dark top (phones); text left, photo right (wide) */
+.hero2{position:relative;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));display:grid}
+.hero2 .ph{position:relative;aspect-ratio:4/5;max-height:86vh;overflow:hidden;background:#2a2622}
+.hero2 .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.hero2 .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,9,8,.62) 0%,rgba(10,9,8,.15) 38%,rgba(10,9,8,0) 55%)}
+.hero2 .over{position:absolute;left:20px;right:20px;top:26px;z-index:1;color:#fff}
+.hero2 .over .caps{color:rgba(255,255,255,.86)}
+.hero2 h1{font:700 clamp(32px,9vw,64px)/1.0 var(--f-display);letter-spacing:.01em;text-transform:uppercase;margin-top:10px}
+.hero2 h1 span{color:#ff5a51}
+.hero2 .tag{position:absolute;right:12px;bottom:12px;z-index:1;background:rgba(15,18,20,.72);color:#fff;font-size:12px;padding:4px 9px;border-radius:99px}
+.hero2 .txt{padding:22px 16px 6px}
+.hero2 .lede{margin:0;color:var(--muted);font-size:17px;max-width:46ch}
+.hero2 .price-line{margin-top:14px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.cta{font:600 13.5px var(--f-display);letter-spacing:.1em;text-transform:uppercase;border-radius:4px;padding:15px 24px}
+.cta.line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.hero2 .h-desk{display:none}
+@media (min-width:900px){
+  .hero2{margin-inline:0;grid-template-columns:1fr 1fr;align-items:stretch;background:var(--card);border-radius:var(--r);overflow:hidden;margin-top:6px}
+  .hero2 .ph{order:2;max-height:none;aspect-ratio:auto;min-height:600px}
+  .hero2 .ph::after{display:none}
+  .hero2 .over{display:none}
+  .hero2 .txt{order:1;padding:56px 48px;display:flex;flex-direction:column;justify-content:center}
+  .hero2 .h-desk{display:block}
+  .hero2 .h-desk h1{color:var(--ink);font-size:clamp(40px,4.4vw,60px)}
+  .hero2 .h-desk h1 span{color:var(--accent)}
+  .hero2 .h-desk .caps{color:var(--muted);display:block;margin-bottom:14px}
+  .hero2 .lede{margin-top:18px}}
+
+/* section headings: small caps kicker over a caps title */
+.sh{text-align:center;margin:56px auto 18px;max-width:60ch}
+.sh .caps{color:var(--accent);display:block;margin-bottom:8px}
+.sh h2{font:700 clamp(24px,5.6vw,34px)/1.12 var(--f-display);text-transform:uppercase;letter-spacing:.03em}
+.sh p{color:var(--muted);margin:10px 0 0}
+.builder > h2{font:700 clamp(24px,5.6vw,34px)/1.12 var(--f-display);text-transform:uppercase;letter-spacing:.03em}
+
+/* tall photo tiles */
+.tiles{display:grid;grid-auto-flow:column;grid-auto-columns:78%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+@media (min-width:900px){.tiles{grid-auto-flow:row;grid-template-columns:repeat(3,1fr);overflow:visible}}
+.tile{margin:0;position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;background:#2a2622;scroll-snap-align:start}
+.tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.tile:hover img{transform:scale(1.03)}
+.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,8,8,.72) 0%,rgba(8,8,8,.2) 38%,rgba(8,8,8,0) 60%)}
+.tile .tt{position:absolute;left:18px;right:18px;bottom:18px;z-index:1;color:#fff}
+.tile .tt .caps{color:rgba(255,255,255,.85);font-size:11px}
+.tile .tt b{display:block;font:700 22px/1.15 var(--f-display);text-transform:uppercase;letter-spacing:.03em;margin:6px 0 12px}
+.tile .tt small{display:block;font-size:13.5px;color:rgba(255,255,255,.9);margin:-6px 0 12px}
+.tile button{font:600 12px var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:#fff;background:transparent;border:1.5px solid #fff;border-radius:4px;padding:11px 16px;cursor:pointer;min-height:44px}
+.tile button:hover{background:#fff;color:#111}
+
+/* grey band for the ideas grid */
+.band{margin-top:56px;background:var(--soft);box-shadow:0 0 0 100vmax var(--soft);clip-path:inset(0 -100vmax);padding:8px 0 40px}
+.band .in{max-width:1120px;margin:0 auto}
+.band .sh{margin-top:32px}
+.gcard{border-radius:6px}
+.gcard b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.02em;font-size:16px}
+.gcard button{font:600 12px var(--f-display);letter-spacing:.12em;text-transform:uppercase;border-radius:4px;min-height:44px}
+
+/* size in scale */
+.scale{display:block;width:100%;height:auto;margin-top:4px}
+.scale text{font:500 11px var(--f-body);fill:var(--muted)}
+.scale .lbl{font:600 11px var(--f-display);fill:var(--ink);letter-spacing:.08em}
+
+/* checkout trust */
+.pay{display:grid;gap:8px;margin-top:4px}
+.pay .sec{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink);font-weight:500}
+.pay .sec svg{width:16px;height:16px;flex:none}
+.pay ul{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.pay li{font:600 10.5px var(--f-display);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:5px 8px;color:var(--ink);background:var(--card)}
+.pay p{margin:0;font-size:13px;color:var(--muted)}
+
+/* promise + badges */
+.promise{display:grid;gap:12px}
+@media (min-width:900px){.promise{grid-template-columns:repeat(3,1fr)}}
+.promise div{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:20px}
+.promise b{display:block;font:700 15px var(--f-display);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.promise span{color:var(--muted);font-size:14.5px}
+.badges{display:grid;grid-template-columns:repeat(2,1fr);gap:22px 12px;list-style:none;margin:40px 0 0;padding:28px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+@media (min-width:700px){.badges{grid-template-columns:repeat(5,1fr)}}
+.badges li{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;font:600 10.5px/1.4 var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.badges svg{width:34px;height:34px;color:var(--accent)}
+
+/* story */
+.story{display:grid;gap:22px;align-items:center}
+@media (min-width:900px){.story{grid-template-columns:1fr 1fr;gap:48px}}
+.story img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;display:block}
+.story p{color:var(--muted);margin:0 0 12px;font-size:16px}
+.story .sh{text-align:left;margin:0 0 12px}
+
+/* contact */
+.contact{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:20px;display:grid;gap:12px}
+@media (min-width:900px){.contact{grid-template-columns:1fr 1fr;column-gap:24px;padding:28px}.contact .wide{grid-column:1/-1}}
+.contact .cta{justify-self:start}
+
+/* footer */
+footer.foot{margin:56px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;background:var(--soft);color:var(--muted);text-align:left;font-size:14px;
+  padding:40px max(16px,env(safe-area-inset-left,0px)) 28px}
+.foot .in{max-width:1120px;margin:0 auto;display:grid;gap:28px}
+@media (min-width:800px){.foot .in{grid-template-columns:1.4fr 1fr 1fr 1fr}}
+.foot h4{margin:0 0 12px;font:600 12px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.foot a{color:var(--muted);text-decoration:none;display:inline-block;padding:4px 0}
+.foot a:hover{color:var(--ink);text-decoration:underline}
+.foot .copy{grid-column:1/-1;border-top:1px solid var(--line);padding-top:18px;font-size:12.5px}
+.foot p{margin:0 0 10px}
 </style>
 
+<div class="announce">Free changes until you approve your 3D model · Ships Australia-wide</div>
 <header class="top wrap">
-  <div class="logo" role="img" aria-label="TrackMade">__LOGO__</div>
-  <div class="ship"><a href="https://www.instagram.com/trackmade.co/" style="color:inherit;text-decoration:none">@trackmade.co</a> · Made in Australia</div>
+  <a class="logo" href="/" aria-label="TrackMade home">__LOGO__</a>
+  <nav class="menu" id="menu" aria-label="Main">
+    <a href="#build">Design yours</a><a href="#possible">Examples</a><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="#contact">Contact</a>
+  </nav>
+  <div class="hdr-r">
+    <a class="ig" href="https://www.instagram.com/trackmade.co/" aria-label="TrackMade on Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></a>
+    <button class="navbtn" id="navbtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
 </header>
 
 <main class="wrap">
-  <section class="hero">
-    <div class="hero-img"><img src="__HERO__" alt="A white relief model of the Everest Base Camp valley with the trek route in red and the name on the base"><span class="tag">Everest Base Camp · 250 mm</span></div>
-    <div>
-      <h1>Your adventure, <span>made real.</span></h1>
+  <section class="hero2">
+    <div class="ph">
+      <img src="/img/hero.jpg" srcset="/img/hero-sm.jpg 720w, /img/hero.jpg 1200w" sizes="(min-width:900px) 560px, 100vw" alt="A white terrain model of the Everest Base Camp trek in morning sun, the red route winding up the valley and the trek name and dates on the base" fetchpriority="high">
+      <div class="over"><span class="caps">Made to order in Australia</span><h1>Your adventure, <span>made real.</span></h1></div>
+      <span class="tag">Everest Base Camp · 250 mm</span>
+    </div>
+    <div class="txt">
+      <div class="h-desk"><span class="caps">Made to order in Australia</span><h1>Your adventure, <span>made real.</span></h1></div>
       <p class="lede">Send the GPS track from your hike, ride or race and we sculpt the real mountains and valleys from satellite data, with your exact route set in. No GPS file? No worries: pick a famous route.</p>
-      <div class="price-line"><b>Classic A$99</b><small>Signature A$150. We confirm your 3D model with you before we make it.</small></div>
-      <ul class="trust">
-        <li>Garmin · Strava · Komoot</li><li>No GPS file? No worries</li><li>Satellite elevation data</li><li>Your name and dates on the base</li>
-      </ul>
-      <a class="cta" href="#build" id="hero-cta">Design yours</a>
+      <div class="price-line"><b>Classic A$99</b><small>Signature A$150. You approve your 3D model before we make it.</small></div>
+      <div class="btns"><a class="cta" href="#build" id="hero-cta">Design yours</a><a class="cta line" href="#possible">See examples</a></div>
     </div>
   </section>
 
-  <div class="strip" aria-label="Photos of a finished model">
-    <figure><img src="__TOP__" alt="Top view of the Everest relief showing valleys and the red route" loading="lazy"><figcaption>Every valley from real elevation data</figcaption></figure>
-    <figure><img src="__SIDE__" alt="The relief on a kitchen bench" loading="lazy"><figcaption>250 mm Signature on the bench</figcaption></figure>
-    <figure><img src="__FOURTH__" alt="The relief with its numbered stop key along the base" loading="lazy"><figcaption>Numbered stops and dates on the base</figcaption></figure>
+  <div class="sh"><span class="caps">Real prints</span><h2>Made from real tracks</h2></div>
+  <div class="tiles" aria-label="Photos of finished terrain models">
+    <figure class="tile"><img src="/img/tile-kili.jpg" alt="Kilimanjaro terrain model in afternoon light with the red route climbing to the summit" loading="lazy">
+      <figcaption class="tt"><span class="caps">Treks · 250 mm Signature</span><b>Kilimanjaro</b><button type="button" data-go="kili">Make one</button></figcaption></figure>
+    <figure class="tile"><img src="/img/tile-lap.jpg" alt="Lap of Australia model with blue sea inlay and the red route around the coast" loading="lazy">
+      <figcaption class="tt"><span class="caps">Road trips · 200 mm Classic</span><b>Lap of Australia</b><button type="button" data-go="lap">Make one</button></figcaption></figure>
+    <figure class="tile"><img src="/img/tile-ebc.jpg" alt="Everest Base Camp terrain model on a sideboard at home" loading="lazy">
+      <figcaption class="tt"><span class="caps">Multi-day hikes · 250 mm Signature</span><b>Everest Base Camp</b><button type="button" data-go="ebc">Make one</button></figcaption></figure>
   </div>
 
-  <section class="possible" id="possible">
-    <h2>What's possible</h2>
-    <p>Any adventure with a GPS track, at any scale. A seven-day trek, a city marathon, a lap of the whole country.</p>
+  <section class="possible band" id="possible"><div class="in">
+    <div class="sh"><span class="caps">Ideas</span><h2>What's possible</h2><p>Any adventure with a GPS track, at any scale. A seven-day trek, a city marathon, a lap of the whole country.</p></div>
     <div class="gal">
       <article class="gcard"><div class="gi"><img src="__G_EBC__" alt="Everest Base Camp terrain model with the red route set into the valley" loading="lazy"></div>
         <div class="gb"><i class="k">Treks &amp; hikes</i><b>Everest Base Camp</b><span>7 days, 67.7 km. Your route slots into the real valleys, every camp numbered.</span><button type="button" data-go="ebc">Make one like this</button></div></article>
@@ -243,7 +383,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
       <article class="gcard"><div class="gi ill"><svg viewBox="0 0 200 120" aria-hidden="true"><path d="M14 92 C40 92 46 40 70 40 S96 78 112 70 150 18 186 24" fill="none" stroke="#ff4d44" stroke-width="5" stroke-linecap="round"/><circle cx="14" cy="92" r="7" fill="#fff"/><circle cx="186" cy="24" r="7" fill="#fff"/></svg></div>
         <div class="gb"><i class="k">Fully custom</i><b>Anything with a track</b><span>A sailing passage, a ski season, your parkrun, a track-day lap, a whole year of rides. Tell us and we'll design it.</span><button type="button" data-go="custom">Request a custom piece</button></div></article>
     </div>
-  </section>
+  </div></section>
 
   <section class="builder" id="build">
     <h2>Design yours</h2>
@@ -326,6 +466,14 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
       <div class="step" id="step2">
         <h3><i>2</i>Size</h3>
         <div class="sizes" role="radiogroup" aria-label="Size" id="sizes"></div>
+        <svg class="scale" viewBox="0 0 640 262" role="img" aria-label="To scale: a phone 147 mm tall beside Classic, 200 mm on the long side, and Signature, 250 mm">
+          <g fill="var(--soft)" stroke="var(--ink)" stroke-width="1.5">
+            <rect x="10" y="83" width="72" height="147" rx="10"/><rect x="122" y="70" width="200" height="160" rx="3"/><rect x="362" y="30" width="250" height="200" rx="3"/></g>
+          <path d="M140 190 l40 -40 l25 22 l40 -55 l35 40 l25 -15" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M385 180 l50 -55 l30 28 l50 -70 l45 52 l30 -20" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+          <text x="46" y="250" text-anchor="middle">Phone</text><text class="lbl" x="222" y="250" text-anchor="middle">CLASSIC · 200 MM</text><text class="lbl" x="487" y="250" text-anchor="middle">SIGNATURE · 250 MM</text>
+        </svg>
+        <p class="hint" style="margin:0">Drawn to scale. Big mountains stand 5–7 cm tall.</p>
       </div>
 
       <div class="step" id="step3">
@@ -344,24 +492,47 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
         <label class="field" for="email">Email for your order confirmation and tracking<input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></label>
         <div class="summary" id="summary"></div>
         <button class="cta" id="checkout" type="button">Continue to secure checkout</button>
-        <p class="hint">Pay with card, Apple Pay or Google Pay. We email an order confirmation with your final 3D model within 2 days. We only start making it once you approve.</p>
+        <div class="pay">
+          <div class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>Secure checkout by Stripe. We never see your card number.</div>
+          <ul aria-label="Ways to pay"><li>Visa</li><li>Mastercard</li><li>Amex</li><li>Apple Pay</li><li>Google Pay</li></ul>
+          <p>We email your 3D model within 2 days and only start making it once you approve. Tracked shipping Australia-wide, at your door within 14 days. <a href="/shipping-returns.html" style="color:inherit">Shipping &amp; returns</a></p>
+        </div>
         <div class="confirm" id="confirm" hidden></div>
       </div>
     </div>
   </section>
 
-  <section class="more">
-    <div>
-      <h2>How it works</h2>
-      <ol class="how">
-        <li><div><b>Send your track</b><span>A link or file from your watch or app. No GPS file? Pick a famous route or ask for your favourite.</span></div></li>
-        <li><div><b>Approve your order confirmation</b><span>We set the crop, stops and text and email you the final 3D model. Change anything for free.</span></div></li>
-        <li><div><b>Made and shipped</b><span>Made to order in Australia, packed in foam, at your door within 14 days.</span></div></li>
-      </ol>
+  <section id="how">
+    <div class="sh"><span class="caps">Three steps</span><h2>How it works</h2></div>
+    <ol class="how">
+      <li><div><b>Send your track</b><span>A link or file from your watch or app. No GPS file? Pick a famous route or ask for your favourite.</span></div></li>
+      <li><div><b>Approve your 3D model</b><span>We set the crop, stops and text and email you the final 3D model. Change anything for free.</span></div></li>
+      <li><div><b>Made and shipped</b><span>Made to order in Australia, packed in foam, at your door within 14 days.</span></div></li>
+    </ol>
+  </section>
+
+  <section id="promise">
+    <div class="sh"><span class="caps">Our promise</span><h2>No surprises</h2></div>
+    <div class="promise">
+      <div><b>See it first</b><span>We email you the finished 3D model before we make anything. Change the crop, stops or text for free until you're happy.</span></div>
+      <div><b>Arrives right, or we remake it</b><span>Damaged in the post or something not right? Send a photo within 14 days and we'll remake it or refund you.</span></div>
+      <div><b>Real terrain</b><span>Built from satellite elevation data and your own GPS track, set up by a person and checked before it ships.</span></div>
     </div>
+    <ul class="badges"><li><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="16" cy="16" r="4"/><ellipse cx="16" cy="16" rx="13" ry="5.5" transform="rotate(-30 16 16)"/><circle cx="26" cy="9" r="1.6" fill="currentColor"/></svg>Satellite elevation data</li><li><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 26 L12 11 L17 18 L21 13 L29 26 Z"/><circle cx="23" cy="7" r="2"/></svg>Made to order in Australia</li><li><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10 L16 4 L28 10 V22 L16 28 L4 22 Z"/><path d="M4 10 L16 16 L28 10 M16 16 V28"/></svg>Packed in foam</li><li><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9 H19 V22 H3 Z M19 13 H25 L29 17 V22 H19"/><circle cx="8" cy="24" r="2.4"/><circle cx="24" cy="24" r="2.4"/></svg>Tracked shipping Australia-wide</li><li><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="14" width="18" height="13" rx="2.5"/><path d="M11 14 V10.5 a5 5 0 0 1 10 0 V14"/></svg>Secure checkout by Stripe</li></ul>
+  </section>
+
+  <section class="story" id="story">
+    <img src="/img/story.jpg" alt="Close-up of the Everest Base Camp model: white ridges and valleys with the red route" loading="lazy">
     <div>
-      <h2>Questions</h2>
-      <div style="margin-top:14px">
+      <div class="sh"><span class="caps">Our story</span><h2>Every model starts with a track</h2></div>
+      <p>Your watch records every step of a trip, then the line disappears into an app. TrackMade turns it back into the place you were: the real mountains, valleys and coastline, built from satellite elevation data, with your route set into it in red.</p>
+      <p>Each model is set up by a person, not a template. We choose the crop, the stops and the lettering for your trip, send you the 3D model to approve, and only then make it, to order, in Australia.</p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="sh"><span class="caps">Help</span><h2>Questions</h2></div>
+    <div>
         <details><summary>How do I find my activity link?</summary>
           <ol><li><b>Strava:</b> tap <b>Connect with Strava</b> in step 1 and tick your activities. Or open the activity → Share → Copy link.</li><li><b>Garmin Connect:</b> open the activity, tap the cog (⚙) → Edit → Privacy → <b>Everyone</b>, then Share → copy the link. You don’t need to download anything; we fetch the track from the link.</li><li><b>Komoot / AllTrails:</b> open the tour → Share → Copy link.</li></ol><p>Stuck? Skip it. Tap <b>No GPS file</b>, tell us the trail and dates, and reply to your order email with a screenshot of your map. Nothing is made until you approve your 3D model.</p></details>
         <details><summary>Which files can I upload?</summary>
@@ -374,11 +545,35 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
           <p>Precision 3D printed in matte PLA, in layers 0.08–0.2 mm thin, then checked before it ships: white terrain, grey engraved text and a scarlet red slot-in route with numbered stops. Display it indoors and out of direct sun.</p></details>
         <details><summary>Shipping and timing</summary>
           <p>Ships Australia-wide with tracking. Order confirmation within 2 days, making takes 2–3 days after you approve, then 2–5 days in the post.</p></details>
-      </div>
+        <details><summary>What if it arrives damaged?</summary>
+          <p>Send us a photo through the contact form within 14 days of delivery and we'll remake it or refund you. Every model is packed in foam, so it's rare.</p></details>
+        <details><summary>Can I change my mind?</summary>
+          <p>Until you approve your 3D model you can change anything for free, or cancel for a full refund. Once it's made it's one of a kind, so we can't take change-of-mind returns. Your rights under Australian Consumer Law always apply. <a href="/shipping-returns.html" style="color:inherit">Shipping &amp; returns</a></p></details>
+        <details><summary>How do I contact you?</summary>
+          <p>Use the <a href="#contact" style="color:inherit">contact form</a> below or message <a href="https://www.instagram.com/trackmade.co/" style="color:inherit">@trackmade.co</a> on Instagram. We reply within a day.</p></details>
     </div>
   </section>
-  <footer>TrackMade · Made in Australia · Instagram <a href="https://www.instagram.com/trackmade.co/" style="color:inherit">@trackmade.co</a></footer>
+
+  <section id="contact">
+    <div class="sh"><span class="caps">Contact</span><h2>Ask us anything</h2><p>Questions about a track, a gift or an order. We reply within a day. Or message <a href="https://www.instagram.com/trackmade.co/" style="color:inherit">@trackmade.co</a> on Instagram.</p></div>
+    <div class="contact">
+      <label class="field" for="m-name">Your name (optional)<input id="m-name" type="text" autocomplete="name"></label>
+      <label class="field" for="m-email">Your email<input id="m-email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+      <label class="field wide" for="m-msg">Message<textarea id="m-msg" placeholder="e.g. Can you do the Overland Track with both of our names on the base?"></textarea></label>
+      <input id="m-web" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+      <button class="cta wide" id="m-send" type="button">Send message</button>
+      <div class="confirm wide" id="m-confirm" hidden></div>
+    </div>
+  </section>
 </main>
+<footer class="foot"><div class="in">
+  <div><h4>TrackMade</h4><p>Terrain models of your hikes, rides, races and road trips. Real elevation data, your exact route, made to order in Australia.</p>
+    <p><a href="https://www.instagram.com/trackmade.co/">Instagram @trackmade.co</a></p></div>
+  <div><h4>Shop</h4><ul><li><a href="#build">Design yours</a></li><li><a href="#possible">Examples</a></li><li><a href="#build" data-famous="1">Famous routes</a></li><li><a href="#custom">Fully custom</a></li></ul></div>
+  <div><h4>Help</h4><ul><li><a href="#contact">Contact us</a></li><li><a href="#faq">FAQ</a></li><li><a href="/shipping-returns.html">Shipping &amp; returns</a></li></ul></div>
+  <div><h4>Legal</h4><ul><li><a href="/privacy.html">Privacy policy</a></li><li><a href="/terms.html">Terms of sale</a></li></ul></div>
+  <div class="copy">© 2026 TrackMade · Made to order in Australia</div>
+</div></footer>
 
 <div class="bar" id="bar"><div class="in">
   <div><div class="amt" id="bar-amt">A$150</div><div class="what" id="bar-what">Signature · red route</div></div>
@@ -827,8 +1022,24 @@ $('checkout').addEventListener('click',()=>{
    .catch(e=>{c.style.borderLeftColor='var(--accent)';c.textContent=e.message;btn.disabled=false;btn.textContent=was});
 });
 
+
+/* ---------- header menu (phones) ---------- */
+{const nb=$('navbtn'),mn=$('menu');nb.addEventListener('click',()=>{const o=mn.classList.toggle('open');nb.setAttribute('aria-expanded',o)});
+ mn.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{mn.classList.remove('open');nb.setAttribute('aria-expanded',false)}));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){mn.classList.remove('open');nb.setAttribute('aria-expanded',false)}});
+ document.querySelectorAll('a[data-famous]').forEach(a=>a.addEventListener('click',()=>$('tab-famous').click()))}
+/* ---------- contact form ---------- */
+$('m-send').addEventListener('click',()=>{const c=$('m-confirm'),em=$('m-email').value.trim(),m=$('m-msg').value.trim();c.hidden=false;
+  if(m.length<5){c.style.borderLeftColor='var(--accent)';c.textContent='Write a short message first.';$('m-msg').focus();return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){c.style.borderLeftColor='var(--accent)';c.textContent='Add your email so we can reply.';$('m-email').focus();return}
+  c.style.borderLeftColor='var(--ok)';track('Contact');
+  if(API===null){c.innerHTML='<strong>Message ready.</strong> On the live site this emails us and we reply to '+esc(em)+' within a day.';return}
+  const b=$('m-send');b.disabled=true;c.textContent='Sending…';
+  fetch(API+'/api/order?a=contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,name:$('m-name').value,message:m,website:$('m-web').value})})
+   .then(r=>r.json().then(j=>{if(!r.ok)throw new Error(j.error||'That didn’t send. Try again.');c.innerHTML='<strong>Sent!</strong> We’ll reply to '+esc(em)+' within a day.';$('m-msg').value='';b.disabled=false}))
+   .catch(e=>{c.style.borderLeftColor='var(--accent)';c.textContent=e.message;b.disabled=false})});
 /* ---------- What's possible + fully custom ---------- */
-document.querySelectorAll('.gcard button[data-go]').forEach(b=>b.addEventListener('click',()=>{const go=b.dataset.go;track('ViewContent',{content_name:'possible:'+go});
+document.querySelectorAll('.gcard button[data-go], .tile button[data-go]').forEach(b=>b.addEventListener('click',()=>{const go=b.dataset.go;track('ViewContent',{content_name:'possible:'+go});
   if(go==='trails'){$('tab-famous').click();loadSample('bibbulmun',true);$('build').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});return}
   if(go==='custom'){$('custom').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});if(b.dataset.pre&&!$('c-what').value)$('c-what').value=b.dataset.pre;setTimeout(()=>$('c-what').focus({preventScroll:true}),400);return}
   $('tab-famous').click();loadSample(go,true);$('build').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}));
