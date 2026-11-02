@@ -43,7 +43,6 @@ PAGE = '''<!doctype html>
 :root{{--bg:#f4f5f6;--card:#fff;--ink:#1f252b;--muted:#5d6872;--line:#dde1e5;--accent:#d42a22}}
 @media (prefers-color-scheme:dark){{:root{{--bg:#111518;--card:#191f24;--ink:#e9ecef;--muted:#9aa5ae;--line:#2b333a;--accent:#ff4d44}}}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans",system-ui,sans-serif;padding:0 16px}}
-.ann{{margin:0 -16px;background:var(--accent);color:#fff;text-align:center;font:600 11.5px Sora,sans-serif;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px}}
 header,main,footer{{max-width:760px;margin:0 auto}}header{{padding:14px 0}}header a{{color:var(--ink);display:inline-block;line-height:0}}header svg{{height:34px;width:auto}}
 main{{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:28px 22px 18px;margin-bottom:28px}}
 h1{{font:700 clamp(26px,6vw,34px)/1.15 Sora,sans-serif;text-transform:uppercase;letter-spacing:.03em;margin:0}}
@@ -51,7 +50,6 @@ h2{{font:600 13px Sora,sans-serif;letter-spacing:.14em;text-transform:uppercase;
 p,li{{color:var(--muted)}}a{{color:var(--ink)}}ul{{padding-left:20px}}.upd{{font-size:13px;margin-top:6px}}
 footer{{font-size:13px;color:var(--muted);padding:0 0 40px;display:flex;flex-wrap:wrap;gap:6px 18px}}footer a{{color:var(--muted)}}
 </style>
-<div class="ann">Made to order in Australia</div>
 <header><a href="/" aria-label="TrackMade home">{logo}</a></header>
 <main>
 {body}
