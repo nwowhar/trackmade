@@ -68,9 +68,9 @@ img.prev{width:100%;border-radius:10px;display:block;margin:8px 0}
 (()=>{const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SIZE={mini:'Mini 150',classic:'Classic 200',sig:'Signature 250',custom:'Custom'};
-const TABS=[['you','Needs you',['request','new','changes_requested','approved','printing','packed']],['wait','Waiting',['preview_sent','shipped']],['done','Done',['delivered','cancelled']],['all','All',null]];
+const TABS=[['you','Needs you',['request','new','changes_requested','approved','printing','packed']],['wait','Waiting',['preview_sent','quoted','shipped']],['done','Done',['delivered','cancelled']],['all','All',null]];
 let ST={},orders=[],tab='you';
-const kind=s=>['request','new','changes_requested','approved','printing','packed'].includes(s)?'you':(['preview_sent','shipped'].includes(s)?'wait':'done');
+const kind=s=>['request','new','changes_requested','approved','printing','packed'].includes(s)?'you':(['preview_sent','quoted','shipped'].includes(s)?'wait':'done');
 const day=d=>d?new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short'}):'';
 const when=d=>d?new Date(d).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'';
 async function api(a,body,method){const r=await fetch('/api/admin?a='+a,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{method:method||'GET'});
@@ -128,7 +128,15 @@ async function open(ref){$('detail').hidden=false;$('panel').innerHTML='<p>Loadi
    ${o.phone?`<dt>Phone</dt><dd>${esc(o.phone)}</dd>`:''}${addr?`<dt>Ship to</dt><dd>${esc(addr)}</dd>`:''}${o.shipping_name?`<dt>Postage</dt><dd>${esc(o.shipping_name)}</dd>`:''}</dl>
   <h3>Order confirmation</h3>
   ${o.preview_url?`<img class="prev" src="${esc(o.preview_url)}" alt="">${o.preview_note?`<div class="note">${esc(o.preview_note)}</div>`:''}<p class="muted">Sent ${when(o.preview_sent_at)}</p>`:''}
-  ${['new','changes_requested','preview_sent','request'].includes(o.status)?`<div class="card" style="display:grid;gap:8px">
+  ${['request','quoted'].includes(o.status)?`<div class="card" style="display:grid;gap:8px">
+    <b>${o.status==='quoted'?`Price sent: A$${esc(o.price_aud)}. Send a new one`:'Send a price'}</b>
+    <select id="qsize"><option value="classic">Classic 200 mm</option><option value="sig">Signature 250 mm</option><option value="custom" selected>Custom</option></select>
+    <input id="qprice" type="number" min="20" step="1" placeholder="Price in A$, shipping added at checkout" value="${o.status==='quoted'?esc(o.price_aud):''}">
+    <label>Photo of the model (optional: paying then approves it)<input type="file" id="qimg" accept="image/png,image/jpeg"></label>
+    <textarea id="qnote" placeholder="Note to the customer, e.g. what's included and how long it takes."></textarea>
+    <button class="red" id="sendQuote">Send price</button>
+    <button class="soft" id="decline">Decline request</button></div>`:''}
+  ${['new','changes_requested','preview_sent'].includes(o.status)?`<div class="card" style="display:grid;gap:8px">
     <label>Photo of the model (Studio’s preview.png)<input type="file" id="img" accept="image/png,image/jpeg"></label>
     <textarea id="pnote" placeholder="Optional note to the customer, e.g. I trimmed the crop slightly so the summit sits in the middle."></textarea>
     <button class="red" id="sendPrev">${o.preview_url?'Send updated confirmation':'Send order confirmation'}</button></div>`:''}
@@ -151,6 +159,11 @@ async function open(ref){$('detail').hidden=false;$('panel').innerHTML='<p>Loadi
     try{await api('status',{ref:o.ref,status:s});await loadList();open(o.ref)}catch(e){msg(e.message,true)}});
   $('panel').querySelectorAll('button[data-pl]').forEach(b=>b.onclick=async()=>{try{await api('production',{ref:o.ref,plate:b.dataset.pl,state:b.dataset.st});await loadList();open(o.ref)}catch(e){msg(e.message,true)}});
   if($('shipGo'))$('shipGo').onclick=async()=>{try{await api('status',{ref:o.ref,status:'shipped',tracking_number:$('trk').value.trim()});await loadList();open(o.ref)}catch(e){msg(e.message,true)}};
+  if($('sendQuote'))$('sendQuote').onclick=async()=>{const price=+$('qprice').value;if(!(price>=20)){msg('Set a price first.',true);return}
+    $('sendQuote').disabled=true;try{const f=$('qimg').files[0];const image=f?await shrink(f):null;
+      await api('quote',{ref:o.ref,price,size:$('qsize').value,note:$('qnote').value,image});await loadList();open(o.ref)}catch(e){msg(e.message,true);$('sendQuote').disabled=false}};
+  if($('decline'))$('decline').onclick=async()=>{const note=prompt('Optional reason for the customer:','');if(note===null)return;
+    try{await api('decline',{ref:o.ref,note});await loadList();open(o.ref)}catch(e){msg(e.message,true)}};
   if($('sendPrev'))$('sendPrev').onclick=async()=>{const f=$('img').files[0];if(!f){msg('Pick the photo first.',true);return}
     $('sendPrev').disabled=true;try{const image=await shrink(f);await api('preview',{ref:o.ref,image,note:$('pnote').value});await loadList();open(o.ref)}
     catch(e){msg(e.message,true);$('sendPrev').disabled=false}};

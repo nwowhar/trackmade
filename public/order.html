@@ -62,6 +62,12 @@ dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}dt{color:va
         </div>
       </div>
     </div>
+    <div class="card" id="payCard" hidden>
+      <h2>Your price</h2>
+      <dl><dt>Model</dt><dd id="payModel"></dd><dt>Price</dt><dd id="payPrice"></dd><dt>Shipping</dt><dd>A$15, Australia Post tracked</dd></dl>
+      <div class="btns"><button class="primary" id="payBtn">Pay and make it</button></div>
+      <p class="muted" id="payNote" style="margin:10px 0 0">Secure checkout by Stripe. Want something changed first? Reply to our email.</p>
+    </div>
     <div class="card" id="shipCard" hidden>
       <h2>On its way</h2>
       <p>Tracking number <b id="tracking"></b></p>
@@ -80,10 +86,11 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const q=new URLSearchParams(location.search),ref=location.pathname.split('/').pop(),t=q.get('t')||'';
 $('ref').textContent=ref;
 const STEPS=[['paid','Order paid'],['preview','Order confirmation sent to you'],['approved','You approve your model'],['making','Being made'],['shipped','Shipped']];
-const STAGE={pending_payment:-1,new:1,preview_sent:2,changes_requested:1,approved:3,printing:3,packed:3,shipped:5,delivered:5,request:0};
+const STAGE={pending_payment:-1,new:1,preview_sent:2,changes_requested:1,approved:3,printing:3,packed:3,shipped:5,delivered:5,request:0,quoted:0};
 const TEXT={
  pending_payment:['Confirming your payment…','This takes a few seconds.'],
- request:['We’ve got your idea','We’ll reply by email within 2 days with a 3D preview and a price.'],
+ request:['We’ve got your idea','We’ll reply by email within 2 days with a price, usually with a photo of your model.'],
+ quoted:['Your price is ready','Pay below and we’ll start making it.'],
  new:['Thanks, your order is in','Within 2 days we’ll send your order confirmation with the final 3D model to approve.'],
  preview_sent:['Your model is ready to check','Look over the crop, stops and lettering, then approve it or ask for a change.'],
  changes_requested:['We’re making your changes','We’ll send an updated model to approve shortly.'],
@@ -106,17 +113,22 @@ function render(o){
   const [h,l]=TEXT[o.status]||[o.statusLabel,''];$('headline').textContent=h;$('lead').textContent=l;
   const you=o.status==='preview_sent';$('status').textContent=you?'Waiting for you':o.statusLabel;$('status').className='pill'+(you?' you':'');
   const st=STAGE[o.status]??0;
-  $('steps').hidden=o.status==='request'||o.status==='cancelled';
+  $('steps').hidden=['request','quoted','cancelled'].includes(o.status);
   $('steps').innerHTML=STEPS.map(([k,n],i)=>{const cls=i<st?'done':(i===st?'now':'');return`<li class="${cls}"><i>${i<st?'✓':i+1}</i>${n}</li>`}).join('');
   if(o.preview_url){$('previewCard').hidden=false;$('previewImg').src=o.preview_url;
     $('previewNote').hidden=!o.preview_note;$('previewNote').textContent=o.preview_note||''}
   $('decide').hidden=o.status!=='preview_sent';
+  $('payCard').hidden=o.status!=='quoted';
+  if(o.status==='quoted'){$('payModel').textContent=o.size==='custom'?'Custom':o.size;$('payPrice').textContent='A$'+Number(o.price_aud).toFixed(2).replace(/\.00$/,'');
+    $('payBtn').textContent='Pay A$'+Number(o.price_aud).toFixed(2).replace(/\.00$/,'')+' and make it';
+    $('payNote').textContent=(o.preview_url?'Paying approves the model in the photo. ':'')+'Secure checkout by Stripe. Want something changed first? Reply to our email.'}
   if(o.auto_approve_at)$('autoNote').textContent='No reply by '+new Date(o.auto_approve_at).toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'})+' and we’ll go ahead and make it as shown.';
   $('shipCard').hidden=!o.tracking_number;
   if(o.tracking_number){$('tracking').textContent=o.tracking_number;$('trackLink').href='https://auspost.com.au/mypost/track/details/'+encodeURIComponent(o.tracking_number)}
   $('details').innerHTML=[['Order',o.ref],['Model',o.size],['Title',o.title],['Details',o.subtitle],['Lettering',o.font]].filter(r=>r[1]&&r[1]!=='custom').map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
   if(q.get('paid')&&o.status!=='pending_payment'){banner('Payment received. Thank you! A receipt is on its way to your inbox.')}
   if(q.get('do')==='approve'&&o.status==='preview_sent')$('decide').scrollIntoView({block:'center'});
+  if(q.get('do')==='pay'&&o.status==='quoted')$('payCard').scrollIntoView({block:'center'});
   if(q.get('do')==='changes'&&o.status==='preview_sent'){$('changesBox').hidden=false;$('changes').focus()}
 }
 function banner(t,err){const b=$('banner');b.hidden=false;b.className='msg'+(err?' err':'');b.textContent=t}
@@ -128,6 +140,9 @@ async function respond(action,note){
   catch(e){banner(e.message||'That didn’t go through. Try again.',true)}
   finally{['approve','changesBtn','sendChanges'].forEach(i=>$(i).disabled=false)}
 }
+$('payBtn').onclick=async()=>{$('payBtn').disabled=true;
+  try{const r=await fetch('/api/order?a=pay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ref,t})});const j=await r.json();if(!r.ok)throw new Error(j.error);location.href=j.url}
+  catch(e){banner(e.message||'Payment couldn’t start. Try again.',true);$('payBtn').disabled=false}};
 $('approve').onclick=()=>respond('approve','');
 $('changesBtn').onclick=()=>{$('changesBox').hidden=false;$('changes').focus()};
 $('sendChanges').onclick=()=>{const n=$('changes').value.trim();if(n.length<3){banner('Tell us what you’d like changed.',true);return}respond('changes',n)};

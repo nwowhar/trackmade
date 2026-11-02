@@ -433,9 +433,9 @@ footer.foot{margin:56px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;bac
           <div class="or" id="sv-or" hidden><span>or paste a link</span></div>
           <label class="field" for="link">Activity link from Strava, Garmin Connect, Komoot or AllTrails
             <textarea id="link" rows="2" inputmode="url" placeholder="https://www.strava.com/activities/…" autocomplete="off" style="width:100%;font:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px"></textarea></label>
+          <div id="link-msg" aria-live="polite"></div>
           <p class="hint">Easiest on a phone. Set the activity to <b>Everyone</b> so we can see it. Trip over several days? Paste one link per day. We download the track and send an order confirmation with your 3D model before we make anything.</p>
           <p class="hint">Can’t get a link? Tap <b>No GPS file</b>, type the trail and your dates, and we’ll trace it. A screenshot of your map helps: reply to your order email with it.</p>
-          <div id="link-msg"></div>
         </div>
         <div data-pane="file" hidden>
           <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose track files">
@@ -757,7 +757,24 @@ $('link').addEventListener('input',e=>{const v=e.target.value.trim();S.link=v;co
   else if(LINK_RX.test(v)){S.source='link';m.innerHTML=`<p class="ok-line">Got it${n>1?`: ${n} links`:''}. We’ll download the track and send your order confirmation.</p>`}
   else if(/^https?:\/\//i.test(v)){S.source='link';m.innerHTML='<p class="hint">We’ll check this link by hand. If it isn’t public we’ll email you.</p>'}
   else{S.source='link';m.innerHTML='<p class="hint">No link? A route name works too, e.g. “Overland Track, 6 days”.</p>'}
+  clearTimeout(lcT);lcN++;
+  if(n&&API!==null&&LINK_RX.test(v)){lcFallback=m.innerHTML;m.innerHTML='<div id="lc"><p class="hint">Checking we can see your activity…</p></div>';lcT=setTimeout(()=>checkLinks(v),600)}
   sync()});
+// Can we actually see their activity? Ask the site straight away, so a private Garmin link gets fixed now, not after they've paid.
+let lcT,lcN=0,lcFallback='';
+const GARMIN_FIX='In the Garmin Connect app, open the activity, tap the cog (⚙) → Edit → Privacy → <b>Everyone</b>, then paste the link again.';
+async function checkLinks(v){if(API===null)return;const m=$('link-msg'),my=++lcN;
+  let box=$('lc');if(!box){box=document.createElement('div');box.id='lc';m.appendChild(box)}
+  let j;try{const r=await fetch(API+'/api/order?a=check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:v})});j=await r.json();if(!r.ok)throw 0}
+  catch(e){if(my===lcN)m.innerHTML=lcFallback;return}
+  if(my!==lcN||$('link').value.trim()!==v)return;
+  const many=j.links.length>1,lines=j.links.map((l,i)=>{const who=many?`Link ${i+1} (${esc(l.site)})`:esc(l.site);
+    if(l.state==='ok')return`<p class="ok-line">✓ ${who}: ${l.title?'“'+esc(l.title)+'”':'found it'}${l.km?` · ${(+l.km).toFixed(1)} km`:''}. We can see it${many?'':', so we’ll take the track from here'}.</p>`;
+    if(l.state==='private')return`<p class="err-line">✗ ${who}: we can’t see this activity, so it’s probably private.</p>`+(l.site==='Garmin'?`<p class="hint">${GARMIN_FIX}</p>`:'<p class="hint">Set it to public, then paste the link again. Or upload the GPX file above.</p>');
+    if(l.state==='nogps')return`<p class="err-line">✗ ${who}: “${esc(l.title||'this activity')}” has no GPS track (indoor or treadmill?). Check it’s the right activity.</p>`;
+    if(l.state==='strava')return`<p class="hint">${who}: we can’t check Strava links automatically, so make sure the activity is set to <b>Everyone</b>.${!$('strava').hidden?' Quicker: tap <b>Connect with Strava</b> above.':''}</p>`;
+    return`<p class="hint">${who}: we couldn’t check this one automatically. We’ll look at it by hand and email you if we can’t see it.</p>`});
+  box.innerHTML=lines.join('');S.linkCheck=j.links}
 const drop=$('drop'),file=$('file');
 drop.addEventListener('click',()=>file.click());
 drop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();file.click()}});

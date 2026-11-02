@@ -4,8 +4,11 @@
 //   GET  /api/order?a=view&ref=TM-1001&t=TOKEN                                         -> the order, for the order page
 //   POST /api/order?a=contact  {email,name,message}                                 -> {ok}   (question from the contact form)
 //   POST /api/order?a=respond  {ref,t,action:'approve'|'changes',note}                 -> the order
+//   POST /api/order?a=check    {text}                                                  -> {links:[{url,site,state,title,km}]} (can we see their activity?)
+//   POST /api/order?a=pay      {ref,t}                                                 -> {url} (pay a custom request's price)
 import { handle, query, json, readJson, HttpError } from '../lib/http.js';
 import * as orders from '../lib/orders.js';
+import { checkLinks } from '../lib/linkcheck.js';
 
 export default handle(async (req, res) => {
   const a = query(req).a;
@@ -21,6 +24,11 @@ export default handle(async (req, res) => {
     const b = await readJson(req, 20_000);
     const o = await orders.forCustomer(b.ref, b.t);
     return json(res, 200, orders.publicView(await orders.respond(o, b.action === 'approve' ? 'approve' : 'changes', b.note)));
+  }
+  if (a === 'check') return json(res, 200, { links: await checkLinks((await readJson(req, 8000)).text) });
+  if (a === 'pay') {
+    const b = await readJson(req, 2000);
+    return json(res, 200, await orders.payQuote(await orders.forCustomer(b.ref, b.t)));
   }
   throw new HttpError(404, 'Not found');
 });

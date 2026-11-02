@@ -4,6 +4,7 @@
 //   POST status {ref,status,tracking_number} · POST note {ref,note} · POST preview {ref,image(base64),type,note}
 //   POST production {ref, plate:'terrain'|'route', state:'queued'|'printing'|'printed'}  (print tracking, from Studio)
 //   POST track {ref, gpx}  (a GPX you downloaded from the customer's link, added in Studio)
+//   POST quote {ref, price, size, note, title, subtitle, image?} · POST decline {ref, note}  (custom requests)
 import crypto from 'node:crypto';
 import { handle, query, json, readJson, cookies, setCookie, clearCookie, HttpError } from '../lib/http.js';
 import { seal, unseal } from '../lib/session.js';
@@ -43,7 +44,7 @@ export default handle(async (req, res) => {
   if (a === 'me') return json(res, 200, { ok: true, who, statuses: STATUSES, live: { db: db.live(), stripe: !!process.env.STRIPE_SECRET_KEY, email: !!process.env.RESEND_API_KEY } });
 
   if (req.method === 'GET' && a === 'list') {
-    const list = await db.listOrders({ status: query(req).status });
+    const list = await db.listOrders({ status: query(req).status, recent: query(req).recent === '1', limit: query(req).recent === '1' ? 60 : 200 });
     const out = [];
     for (const o of list) out.push(await orders.autoApprove(o));
     return json(res, 200, { orders: out.map(({ token, ...o }) => o) });
@@ -62,6 +63,12 @@ export default handle(async (req, res) => {
   else if (a === 'note') done = await orders.saveNote(o, b.note);
   else if (a === 'production') done = await orders.setProduction(o, b.plate, b.state);
   else if (a === 'track') done = await orders.attachTrack(o, String(b.gpx || ''));
+  else if (a === 'decline') done = await orders.declineRequest(o, b.note);
+  else if (a === 'quote') {
+    const m = /^data:(image\/(?:jpeg|png));base64,/.exec(b.image || '');
+    const buf = b.image ? Buffer.from(String(b.image).replace(/^data:[^,]+,/, ''), 'base64') : null;
+    done = await orders.sendQuote(o, b, buf && buf.length > 1000 ? buf : null, m ? m[1] : 'image/jpeg');
+  }
   else if (a === 'preview') {
     const m = /^data:(image\/(?:jpeg|png));base64,/.exec(b.image || '');
     const buf = Buffer.from(String(b.image || '').replace(/^data:[^,]+,/, ''), 'base64');
