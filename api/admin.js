@@ -16,8 +16,8 @@ const COOKIE = 'tm_admin', PATH = '/api/admin', AGE = 12 * 3600;
 const same = (a, b) => { const h = s => crypto.createHash('sha256').update(String(s)).digest(); return crypto.timingSafeEqual(h(a), h(b)); };
 
 function authed(req) {
-  const key = process.env.ADMIN_API_KEY, auth = req.headers.authorization || '';
-  if (key && key.length >= 24 && auth.startsWith('Bearer ') && same(auth.slice(7), key)) return 'studio';
+  const key = (process.env.ADMIN_API_KEY || '').trim(), auth = (req.headers.authorization || '').trim();
+  if (key.length >= 24 && auth.startsWith('Bearer ') && same(auth.slice(7).trim(), key)) return 'studio';
   const s = unseal(cookies(req)[COOKIE]);
   return s && s.exp > Date.now() / 1000 ? 'dashboard' : null;
 }
