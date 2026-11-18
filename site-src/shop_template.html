@@ -131,6 +131,14 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .cta.ghost{background:var(--soft);color:var(--ink);border:1px solid var(--line);margin-bottom:12px}#sv-use:disabled{opacity:.5}
 .chip{font:500 14px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:99px;padding:8px 14px;cursor:pointer;min-height:40px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.apps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0 4px}
+.appchip{font:500 13px var(--f-body);color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:9px 2px;cursor:pointer;min-height:44px;line-height:1.15}
+.appchip[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.guide{background:var(--soft);border-radius:12px;padding:12px 14px 6px;margin:8px 0 12px}
+.guide ol{margin:6px 0 4px;padding-left:20px;font-size:14px;line-height:1.45}.guide ol li{margin:3px 0}
+.guide .g-tip{font-size:13px;color:var(--muted);margin:6px 0}
+.guide .g-act{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 6px}
+.later{border:1.5px solid var(--ok);border-radius:12px;padding:10px 14px;margin:8px 0;font-size:14px}
 .sizes{display:grid;gap:8px}
 label.opt{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
 label.opt:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
@@ -409,6 +417,19 @@ footer.foot{margin:56px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;bac
       <div class="step" id="step1">
         <h3><i>1</i>Your track</h3>
         <p class="hint">Your own GPS track makes a fully personal model: your exact line, dates and distance. No GPS file? No worries, pick a route instead.</p>
+        <p style="margin:14px 0 0;font-size:15px"><b>Which app is your activity in?</b></p>
+        <div class="apps" role="group" aria-label="Which app is your activity in?">
+          <button class="appchip" data-app="garmin" aria-pressed="false" type="button">Garmin</button>
+          <button class="appchip" data-app="strava" aria-pressed="false" type="button">Strava</button>
+          <button class="appchip" data-app="komoot" aria-pressed="false" type="button">Komoot</button>
+          <button class="appchip" data-app="alltrails" aria-pressed="false" type="button">AllTrails</button>
+          <button class="appchip" data-app="coros" aria-pressed="false" type="button">COROS</button>
+          <button class="appchip" data-app="apple" aria-pressed="false" type="button">Apple Watch</button>
+          <button class="appchip" data-app="suunto" aria-pressed="false" type="button">Suunto</button>
+          <button class="appchip" data-app="other" aria-pressed="false" type="button">Other</button>
+        </div>
+        <div class="guide" id="guide" hidden aria-live="polite"></div>
+        <div class="later" id="later" hidden></div>
         <div class="seg" role="tablist" aria-label="Choose your track">
           <button role="tab" id="tab-link" aria-selected="true" data-tab="link" type="button">Paste link</button>
           <button role="tab" id="tab-file" aria-selected="false" data-tab="file" type="button">Upload file</button>
@@ -434,11 +455,9 @@ footer.foot{margin:56px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;bac
           </div>
           <div class="or" id="sv-or" hidden><span>or paste a link</span></div>
           <label class="field" for="link">Activity link from Garmin Connect or Komoot
-            <textarea id="link" rows="2" inputmode="url" placeholder="https://www.strava.com/activities/…" autocomplete="off" style="width:100%;font:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px"></textarea></label>
+            <textarea id="link" rows="2" inputmode="url" placeholder="https://connect.garmin.com/… or https://www.komoot.com/tour/…" autocomplete="off" style="width:100%;font:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px"></textarea></label>
           <div id="link-msg" aria-live="polite"></div>
           <p class="hint">Easiest on a phone. Set the activity to <b>Everyone</b> so we can see it. Trip over several days? Paste one link per day. We download the track and send an order confirmation with your 3D model before we make anything.</p>
-          <p class="hint"><b>On Strava?</b> Strava doesn’t let anyone else download your track from a link, so please <b>upload the file</b> instead: on a computer, open the activity at strava.com, click the <b>⋯</b> menu → <b>Export GPX</b>, then add it under <b>Upload file</b>. Several days? Export each one and add them all at once.</p>
-          <p class="hint"><b>On AllTrails?</b> Same again: AllTrails doesn’t let us download from a link, so please upload the file: on a computer, go to alltrails.com, click your profile picture → <b>Show profile</b> → <b>Activities</b>, open the activity, click the <b>⋯</b> menu above its title → <b>Download route</b> → <b>GPX Track</b> → OK, then add it under <b>Upload file</b>.</p>
           <p class="hint">Can’t get a link? Tap <b>No GPS file</b>, type the trail and your dates, and we’ll trace it. A screenshot of your map helps: reply to your order email with it.</p>
         </div>
         <div data-pane="file" hidden>
@@ -539,8 +558,10 @@ footer.foot{margin:56px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;bac
   <section id="faq">
     <div class="sh"><span class="caps">Help</span><h2>Questions</h2></div>
     <div>
-        <details><summary>How do I find my activity link?</summary>
-          <ol><li><b>Strava:</b> Strava doesn’t let anyone else download your track from a link, so upload the file: on a computer, open the activity at strava.com, click the <b>⋯</b> menu → <b>Export GPX</b>, then add it under <b>Upload file</b> in step 1. (The Strava phone app can’t export; use a browser.)</li><li><b>Garmin Connect:</b> open the activity, tap the cog (⚙) → Edit → Privacy → <b>Everyone</b>, then Share → copy the link. You don’t need to download anything; we fetch the track from the link.</li><li><b>Komoot:</b> open the tour → Share → Copy link.</li><li><b>AllTrails:</b> AllTrails doesn’t let anyone else download your track from a link, so upload the file: on a computer, go to alltrails.com, click your profile picture → <b>Show profile</b> → <b>Activities</b>, open the activity, click the <b>⋯</b> menu above its title → <b>Download route</b> → <b>GPX Track</b> → OK, then add it under <b>Upload file</b> in step 1. (Use a browser; the app’s export is for routes, not your recordings.)</li></ol><p>Stuck? Skip it. Tap <b>No GPS file</b>, tell us the trail and dates, and reply to your order email with a screenshot of your map. Nothing is made until you approve your 3D model.</p></details>
+        <details><summary>How do I send my track from my phone?</summary>
+          <p>In step 1, tap the app your activity is in. You’ll get two or three steps for your phone:</p>
+          <ul><li><b>Garmin Connect and Komoot:</b> copy the activity’s share link and paste it. We download it for you.</li><li><b>COROS, Suunto and most others:</b> export the file from the app, save it to Files, then upload it.</li><li><b>Strava and AllTrails:</b> their apps can’t share a file, so open their website in your phone’s browser, switch to the desktop site and download the GPX.</li><li><b>Apple Watch:</b> use a free app like WorkoutGPX to save the workout as a GPX.</li></ul>
+          <p>Short on time? Order now and reply to your order email with the file later. Nothing is made until you approve your 3D model.</p></details>
         <details><summary>Which files can I upload?</summary>
           <p>GPX, FIT, TCX, KML and KMZ, plus the zip Garmin Connect gives you on a computer (Export Original). Several files for a multi-day trip is fine. On a phone a link is usually easier than a file.</p></details>
         <details><summary>I don't have a GPS file. Can you still make one?</summary>
@@ -750,6 +771,40 @@ function loadSample(key,asChoice){wantSample=key;const s=SAMPLES[key];
  if(v&&'IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{
    if(e.isIntersecting){const s=v.querySelector('source[data-src]');if(s){s.src=s.dataset.src;s.removeAttribute('data-src');v.load()}v.play().catch(()=>{})}
    else v.pause()}),{rootMargin:'200px'});io.observe(v)}}
+/* ---------- step 1: which app? phone steps for each ---------- */
+const DESK='open <b>%s</b> in Safari or Chrome (not the app) and log in. Tap <b>aA</b> (Safari) or <b>⋮</b> (Chrome) → <b>Request desktop site</b>';
+const SAVE='Save it to <b>Files</b> (iPhone) or <b>Downloads</b> (Android), then tap <b>Choose your file</b> below';
+const APPS={
+ garmin:{tab:'link',steps:['In the Garmin Connect app, open the activity.','Tap the cog (⚙) → <b>Edit</b> → <b>Privacy</b> → <b>Everyone</b>, and save.','Tap <b>Share</b> → <b>Copy link</b>, then paste it below. Several days? Paste one link per day.'],
+   tip:'That’s it: we download the track from the link.'},
+ komoot:{tab:'link',steps:['In the Komoot app, open the tour.','Tap <b>Share</b> → <b>Copy link</b>.','Paste it below. Several days? Paste one link per day.'],
+   tip:'That’s it: we download the tour from the link and check it straight away.'},
+ strava:{tab:'file',strava:true,steps:['Strava’s app can’t share a track file, so on your phone '+DESK.replace('%s','strava.com')+'.','Open the activity, tap the <b>⋯</b> menu → <b>Export GPX</b>.',SAVE+'. Several days? Add them all at once.'],
+   tip:'Recorded on a Garmin or COROS watch? Pick that app instead, it’s quicker.'},
+ alltrails:{tab:'file',steps:['AllTrails’ app can’t share your recordings, so on your phone '+DESK.replace('%s','alltrails.com')+'.','Tap your profile picture → <b>Show profile</b> → <b>Activities</b>, open the activity, tap <b>⋯</b> → <b>Download route</b> → <b>GPX Track</b> → OK.',SAVE+'.'],
+   tip:'Recorded on a Garmin or COROS watch? Pick that app instead, it’s quicker.'},
+ coros:{tab:'file',steps:['In the COROS app, open <b>Activities</b> and tap the activity.','Tap <b>⋯</b> (top right) → <b>Export Data</b> → <b>GPX</b>.',SAVE+'. Several days? Add them all at once.']},
+ apple:{tab:'file',steps:['Apple’s Fitness app can’t export a route, so install a free app like <b>WorkoutGPX</b> from the App Store and let it read your workouts.','Find the workout, swipe it and tap <b>Share GPX</b>.',SAVE+'. Several days? Select them all and add them at once.'],
+   tip:'Does your watch sync to Strava? You can use the Strava steps instead.'},
+ suunto:{tab:'file',steps:['In the Suunto app, open the workout.','Tap <b>⋯</b> and look for <b>Export</b> (a FIT file is fine).',SAVE+'.']},
+ other:{tab:'file',steps:['Open the activity in your app and look for <b>Export</b>, <b>Download</b> or <b>Share file</b> (often under ⋯).','GPX, FIT, TCX or KML all work.',SAVE+'.'],
+   tip:'Got a public link instead? Paste it under <b>Paste link</b> and we’ll check it.'}};
+const NAMES={garmin:'Garmin',komoot:'Komoot',strava:'Strava',alltrails:'AllTrails',coros:'COROS',apple:'Apple Watch',suunto:'Suunto',other:'your app'};
+function pickApp(id){const a=APPS[id],g=$('guide');S.app=id;
+  document.querySelectorAll('.appchip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.app===id));
+  const sv=a.strava&&!$('strava').hidden;
+  g.innerHTML=(sv?`<p class="ok-line">Easiest: tap <b>Connect with Strava</b> below and tick your activities. Or do it by hand:</p>`:'')+
+    `<ol>${a.steps.map(x=>`<li>${x}</li>`).join('')}</ol>`+(a.tip?`<p class="g-tip">${a.tip}</p>`:'')+
+    `<div class="g-act"><button class="linkbtn" id="g-later" type="button">Can’t do it now? Order now, send it later →</button></div>`;
+  g.hidden=false;$('later').hidden=true;
+  $('tab-'+(sv?'link':a.tab)).click();
+  $('g-later').addEventListener('click',sendLater);track('CustomizeProduct',{source:'app:'+id})}
+function sendLater(){const nm=NAMES[S.app]||'your app';S.source='later';S.link='';
+  $('later').innerHTML=`<p class="ok-line" style="margin:0 0 4px">No rush. Order now and send your track afterwards.</p><p class="hint" style="margin:0">Once you’ve paid, just <b>reply to your order email</b> with the file from ${esc(nm)} attached (or a link). We start your 3D model as soon as it arrives. <button class="linkbtn" id="later-undo" type="button">Add it now instead</button></p>`;
+  $('later').hidden=false;$('guide').hidden=true;
+  $('later-undo').addEventListener('click',()=>{S.source='example';$('later').hidden=true;pickApp(S.app||'other');sync()});
+  track('CustomizeProduct',{source:'later'});sync()}
+document.querySelectorAll('.appchip').forEach(c=>c.addEventListener('click',()=>pickApp(c.dataset.app)));window.pickApp=pickApp;
 /* ---------- step 1: tabs, link, file ---------- */
 document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-selected',x===b));
@@ -774,12 +829,12 @@ $('link').addEventListener('input',e=>{const v=e.target.value.trim();S.link=v;co
   else if(/^https?:\/\//i.test(v)){S.source='link';m.innerHTML='<p class="hint">We’ll check this link by hand. If it isn’t public we’ll email you.</p>'}
   else{S.source='link';m.innerHTML='<p class="hint">No link? A route name works too, e.g. “Overland Track, 6 days”.</p>'}
   clearTimeout(lcT);lcN++;
-  if(n&&API!==null&&LINK_RX.test(v)&&!(v.match(/https?:\/\/\S+/gi)||[]).every(u=>/alltrails/i.test(u))){lcFallback=m.innerHTML;m.innerHTML='<div id="lc"><p class="hint">Checking we can see your activity…</p></div>';lcT=setTimeout(()=>checkLinks(v),600)}
+  if(n&&API!==null&&LINK_RX.test(v)&&!(v.match(/https?:\/\/\S+/gi)||[]).every(u=>/alltrails|strava/i.test(u))){lcFallback=m.innerHTML;m.innerHTML='<div id="lc"><p class="hint">Checking we can see your activity…</p></div>';lcT=setTimeout(()=>checkLinks(v),600)}
   sync()});
 // Can we actually see their activity? Ask the site straight away, so a private Garmin link gets fixed now, not after they've paid.
 let lcT,lcN=0,lcFallback='';
-const STRAVA_FIX=()=>`<p class="err-line">Strava doesn’t let us download your track from a link.</p><p class="hint">${!$('strava').hidden?'Easiest: tap <b>Connect with Strava</b> above and tick your activities. Or u':'U'}pload the file instead: on a computer, open the activity at strava.com, click the <b>⋯</b> menu → <b>Export GPX</b>, then add it under <b>Upload file</b>. Several days? Export each one and add them all at once.</p>`;
-const ALLTRAILS_FIX=`<p class="err-line">AllTrails doesn’t let us download your track from a link.</p><p class="hint">Please upload the file instead: on a computer, go to alltrails.com, click your profile picture → <b>Show profile</b> → <b>Activities</b>, open the activity, click the <b>⋯</b> menu above its title → <b>Download route</b> → <b>GPX Track</b> → OK, then add it under <b>Upload file</b>. Several days? Download each one and add them all at once.</p>`;
+const STRAVA_FIX=()=>`<p class="err-line">Strava doesn’t let us download your track from a link.</p><p class="hint">${!$('strava').hidden?'Easiest: tap <b>Connect with Strava</b> above and tick your activities. Or g':'G'}et the file instead, it takes a minute on your phone: <button class="linkbtn" type="button" onclick="pickApp('strava')">show me how</button>. Or order now and send it later.</p>`;
+const ALLTRAILS_FIX=`<p class="err-line">AllTrails doesn’t let us download your track from a link.</p><p class="hint">Get the file instead, it takes a minute on your phone: <button class="linkbtn" type="button" onclick="pickApp('alltrails')">show me how</button>. Or order now and send it later.</p>`;
 const GARMIN_FIX='In the Garmin Connect app, open the activity, tap the cog (⚙) → Edit → Privacy → <b>Everyone</b>, then paste the link again.';
 async function checkLinks(v){if(API===null)return;const m=$('link-msg'),my=++lcN;
   let box=$('lc');if(!box){box=document.createElement('div');box.id='lc';m.appendChild(box)}
@@ -1019,8 +1074,8 @@ FONTS.forEach(f=>{const b=document.createElement('button');b.type='button';b.cla
   b.innerHTML=`<b style='font:${f.css.replace('{px}','20')}'>TRAIL</b><span>${f.n}</span>`;b.addEventListener('click',()=>setFont(f.id));$('fonts').appendChild(b)});
 
 /* ---------- summary, sticky bar, checkout ---------- */
-function trackLabel(){if(S.source==='strava')return`Strava · ${S.strava.length} activit${S.strava.length>1?'ies':'y'}`;if(S.source==='file')return`${S.files} track file${S.files>1?"s":""}`;if(S.source==='link')return S.link.length>34?S.link.slice(0,34)+'…':S.link;if(S.source.startsWith('famous:'))return S.source.slice(7);return'Not added yet'}
-function sync(){$('vnav').hidden=S.source!=='example';
+function trackLabel(){if(S.source==='strava')return`Strava · ${S.strava.length} activit${S.strava.length>1?'ies':'y'}`;if(S.source==='file')return`${S.files} track file${S.files>1?"s":""}`;if(S.source==='link')return S.link.length>34?S.link.slice(0,34)+'…':S.link;if(S.source.startsWith('famous:'))return S.source.slice(7);if(S.source==='later')return'Sending it after checkout';return'Not added yet'}
+function sync(){$('vnav').hidden=S.source!=='example';if(S.source!=='later')$('later').hidden=true;
   COLOURS.forEach(c=>$('col-'+c.id).setAttribute('aria-checked',c===S.colour));$('swname').textContent=S.colour.n;
   FONTS.forEach(f=>$('fnt-'+f.id.replace(/\s/g,'')).setAttribute('aria-checked',f.id===S.font));
   const hasTrack=S.source!=='example';
@@ -1050,7 +1105,7 @@ $('checkout').addEventListener('click',()=>{
     if(gpx.length>3e6&&S.pts){const k=Math.ceil(gpx.length/2.6e6);gpx=toGPX(S.pts.filter((p,i)=>i%k===0||i===S.pts.length-1),S.gpxName||'Your trip')}}
   const btn=$('checkout');btn.disabled=true;const was=btn.textContent;btn.textContent='Opening secure checkout…';c.innerHTML='Saving your order…';
   fetch(API+'/api/order?a=create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    size:S.size.id,email:em,title:$('t-title').value,subtitle:$('t-sub').value,font:S.font,source:S.source,link:S.link||'',strava:S.strava||null,gpx})})
+    size:S.size.id,email:em,title:$('t-title').value,subtitle:$('t-sub').value,font:S.font,source:S.source==='later'?'later:'+(S.app||'other'):S.source,link:S.link||'',strava:S.strava||null,gpx})})
    .then(r=>r.json().then(j=>{if(!r.ok)throw new Error(j.error||'Checkout didn’t start. Try again.');location.href=j.url}))
    .catch(e=>{c.style.borderLeftColor='var(--accent)';c.textContent=e.message;btn.disabled=false;btn.textContent=was});
 });
