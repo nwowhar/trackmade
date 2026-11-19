@@ -457,7 +457,7 @@ footer.foot{margin:56px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;bac
           <label class="field" for="link">Activity link from Garmin Connect or Komoot
             <textarea id="link" rows="2" inputmode="url" placeholder="https://connect.garmin.com/… or https://www.komoot.com/tour/…" autocomplete="off" style="width:100%;font:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px"></textarea></label>
           <div id="link-msg" aria-live="polite"></div>
-          <p class="hint">Easiest on a phone. Set the activity to <b>Everyone</b> so we can see it. Trip over several days? Paste one link per day. We download the track and send an order confirmation with your 3D model before we make anything.</p>
+          <p class="hint">Links work for <b>Garmin Connect</b> (set the activity to <b>Everyone</b>) and <b>Komoot</b> (set the tour to <b>Public</b>). Trip over several days? Paste one link per day. We download the track and send an order confirmation with your 3D model before we make anything.</p>
           <p class="hint">Can’t get a link? Tap <b>No GPS file</b>, type the trail and your dates, and we’ll trace it. A screenshot of your map helps: reply to your order email with it.</p>
         </div>
         <div data-pane="file" hidden>
@@ -833,7 +833,7 @@ $('link').addEventListener('input',e=>{const v=e.target.value.trim();S.link=v;co
   sync()});
 // Can we actually see their activity? Ask the site straight away, so a private Garmin link gets fixed now, not after they've paid.
 let lcT,lcN=0,lcFallback='';
-const STRAVA_FIX=()=>`<p class="err-line">Strava doesn’t let us download your track from a link.</p><p class="hint">${!$('strava').hidden?'Easiest: tap <b>Connect with Strava</b> above and tick your activities. Or g':'G'}et the file instead, it takes a minute on your phone: <button class="linkbtn" type="button" onclick="pickApp('strava')">show me how</button>. Or order now and send it later.</p>`;
+const STRAVA_FIX=()=>`<p class="err-line">Strava only lets the owner download a track, even when the activity is set to Everyone, so we can’t use a Strava link.</p><p class="hint">${!$('strava').hidden?'Easiest: tap <b>Connect with Strava</b> above and tick your activities. Or g':'G'}et the file instead, it takes a minute on your phone: <button class="linkbtn" type="button" onclick="pickApp('strava')">show me how</button>. Or order now and send it later.</p>`;
 const ALLTRAILS_FIX=`<p class="err-line">AllTrails doesn’t let us download your track from a link.</p><p class="hint">Get the file instead, it takes a minute on your phone: <button class="linkbtn" type="button" onclick="pickApp('alltrails')">show me how</button>. Or order now and send it later.</p>`;
 const GARMIN_FIX='In the Garmin Connect app, open the activity, tap the cog (⚙) → Edit → Privacy → <b>Everyone</b>, then paste the link again.';
 async function checkLinks(v){if(API===null)return;const m=$('link-msg'),my=++lcN;
@@ -846,7 +846,7 @@ async function checkLinks(v){if(API===null)return;const m=$('link-msg'),my=++lcN
     if(l.state==='private')return`<p class="err-line">✗ ${who}: we can’t see this activity, so it’s probably private.</p>`+(l.site==='Garmin'?`<p class="hint">${GARMIN_FIX}</p>`:'<p class="hint">Set it to public, then paste the link again. Or upload the GPX file above.</p>');
     if(l.state==='nogps')return`<p class="err-line">✗ ${who}: “${esc(l.title||'this activity')}” has no GPS track (indoor or treadmill?). Check it’s the right activity.</p>`;
     if(l.state==='alltrails')return many?`<p class="err-line">✗ ${who}: AllTrails doesn’t let us download tracks from a link. Please upload the GPX for this one (see below).</p>`:ALLTRAILS_FIX;
-    if(l.state==='strava')return many?`<p class="err-line">✗ ${who}: Strava doesn’t let us download tracks from a link. Please upload the GPX for this one (see below).</p>`:STRAVA_FIX();
+    if(l.state==='strava')return many?`<p class="err-line">✗ ${who}: Strava only lets the owner download a track, even when it’s set to Everyone. Please upload the GPX for this one.</p>`:STRAVA_FIX();
     return`<p class="hint">${who}: we couldn’t check this one automatically. We’ll look at it by hand and email you if we can’t see it.</p>`});
   box.innerHTML=lines.join('');S.linkCheck=j.links}
 const drop=$('drop'),file=$('file');
