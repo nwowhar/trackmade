@@ -1,0 +1,160 @@
+<!--title: How to send your track-->
+<style>
+.lead{font-size:17px;color:var(--ink);margin:10px 0 4px}
+.jump{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:16px 0 6px}
+.jump a{display:block;text-align:center;text-decoration:none;font:600 14px "IBM Plex Sans",sans-serif;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 4px}
+.app{border-top:1px solid var(--line);padding-top:6px;margin-top:26px;scroll-margin-top:12px}
+.app h2{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.app h2 small{font:500 13px "IBM Plex Sans",sans-serif;letter-spacing:0;text-transform:none;color:var(--muted)}
+.app ol{padding-left:22px;margin:6px 0}.app ol li{color:var(--ink);margin:6px 0}
+.then{background:var(--bg);border-radius:10px;padding:10px 14px;margin:10px 0 0;color:var(--ink);font-size:15px}
+.then b:first-child{color:var(--accent)}
+.tip{font-size:14px;margin:8px 0 0}
+.tool{background:var(--bg);border-radius:10px;padding:12px 14px;margin:10px 0 0}
+.tool input{width:100%;font:16px "IBM Plex Sans",sans-serif;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.tool .out{margin-top:8px;font-size:14px;color:var(--ink);word-break:break-all}
+.tool button{font:600 14px "IBM Plex Sans",sans-serif;border:0;border-radius:8px;padding:9px 14px;background:var(--ink);color:var(--card);margin-top:8px;cursor:pointer}
+.back{display:block;text-align:center;text-decoration:none;font:700 17px Sora,sans-serif;background:var(--accent);color:#fff;border-radius:12px;padding:15px;margin:30px 0 8px}
+</style>
+<h1>How to send your track</h1>
+<p class="lead">Two minutes on your phone. Pick the app your activity is in.</p>
+<nav class="jump" aria-label="Pick your app">
+<a href="#garmin">Garmin</a><a href="#komoot">Komoot</a><a href="#strava">Strava</a>
+<a href="#alltrails">AllTrails</a><a href="#coros">COROS</a><a href="#suunto">Suunto</a>
+<a href="#apple">Apple Watch</a><a href="#polar">Polar</a><a href="#other">Other</a>
+</nav>
+<p class="tip">Can’t do it right now? You can order first and send it later. See <a href="#later">Send it after you order</a>.</p>
+
+<section class="app" id="garmin">
+<h2>Garmin Connect <small>Easiest: just a link</small></h2>
+<ol>
+<li>In the Garmin Connect app, open the activity.</li>
+<li>Set its privacy to <b>Everyone</b> (tap the edit pencil or ⋯ at the top, then <b>Privacy</b>), and save.</li>
+<li>Tap <b>Share</b> → <b>Copy link</b>.</li>
+</ol>
+<p class="then"><b>Then:</b> paste the link in step 1 of the order form. We download the track for you.</p>
+</section>
+
+<section class="app" id="komoot">
+<h2>Komoot <small>Easiest: just a link</small></h2>
+<ol>
+<li>In the Komoot app, tap <b>Profile</b> and open the tour.</li>
+<li>Tap <b>Share</b> → <b>Copy link</b>. This works even if the tour is private.</li>
+</ol>
+<p class="then"><b>Then:</b> paste the link in step 1 of the order form. We check it straight away.</p>
+</section>
+
+<section class="app" id="strava">
+<h2>Strava <small>About 2 minutes</small></h2>
+<p>Strava doesn’t let anyone but you download your track, even when the activity is set to Everyone, and the Strava app can’t save a file. Your phone’s web browser can:</p>
+<ol>
+<li>In the Strava app, open the activity → <b>Share</b> → <b>Copy link</b>, and paste it here:</li>
+</ol>
+<div class="tool">
+<input id="sv" inputmode="url" placeholder="https://www.strava.com/activities/…" aria-label="Your Strava activity link">
+<div class="out" id="sv-out">We’ll turn it into your download link.</div>
+</div>
+<ol start="2">
+<li>In Safari or Chrome (not the app), go to <b>strava.com</b> and log in.</li>
+<li>Paste the download link into the address bar and go. The GPX file downloads.</li>
+</ol>
+<p class="tip">If the download link doesn’t work, open the activity on strava.com, switch your browser to the desktop site (Safari: page menu <b>aA</b> or <b>⋯</b> beside the address → <b>Request Desktop Website</b>; Chrome: <b>⋮</b> → <b>Desktop site</b>), then tap <b>⋯</b> → <b>Export GPX</b>.</p>
+<p class="then"><b>Then:</b> in step 1 of the order form, tap <b>Upload file</b> and pick it from <b>Downloads</b>.</p>
+<p class="tip">Recorded on a Garmin, COROS or Suunto watch? Use that app instead, it’s quicker.</p>
+</section>
+
+<section class="app" id="alltrails">
+<h2>AllTrails <small>About 2 minutes</small></h2>
+<p>AllTrails only lets you download your recordings from its website, so use your phone’s browser:</p>
+<ol>
+<li>Go to <b>alltrails.com</b>, log in, and switch to the desktop site (Safari: page menu <b>aA</b> or <b>⋯</b> → <b>Request Desktop Website</b>; Chrome: <b>⋮</b> → <b>Desktop site</b>).</li>
+<li>Tap your profile picture → <b>Activities</b>, and open the activity.</li>
+<li>Tap <b>⋯</b> above the title → <b>Download route</b> → <b>GPX Track</b> → <b>OK</b>.</li>
+</ol>
+<p class="then"><b>Then:</b> in step 1 of the order form, tap <b>Upload file</b> and pick it from <b>Downloads</b>.</p>
+</section>
+
+<section class="app" id="coros">
+<h2>COROS <small>About 1 minute</small></h2>
+<ol>
+<li>In the COROS app, go to <b>Activities</b> and open the activity.</li>
+<li>Tap <b>⋯</b> (top right) → <b>Export Data</b> → <b>.GPX</b>.</li>
+<li>Choose <b>Save to Files</b> (iPhone) or save it to your phone (Android).</li>
+</ol>
+<p class="then"><b>Then:</b> in step 1 of the order form, tap <b>Upload file</b> and pick the file.</p>
+</section>
+
+<section class="app" id="suunto">
+<h2>Suunto <small>About 1 minute</small></h2>
+<ol>
+<li>In the Suunto app, go to your <b>Calendar</b> and open the workout.</li>
+<li>Tap <b>⋯</b> (top right) and export it as a <b>FIT</b> or <b>GPX</b> file.</li>
+<li>Choose <b>Save to Files</b> (iPhone) or save it to your phone (Android).</li>
+</ol>
+<p class="then"><b>Then:</b> in step 1 of the order form, tap <b>Upload file</b> and pick the file.</p>
+</section>
+
+<section class="app" id="apple">
+<h2>Apple Watch <small>About 2 minutes</small></h2>
+<p>Apple’s Fitness app can’t save your route as a file, so you need a small free helper app.</p>
+<ol>
+<li>Install <b>WorkoutGPX</b> (free) from the App Store and let it read your workouts.</li>
+<li>Find the workout and export it as a <b>GPX</b>.</li>
+<li>Choose <b>Save to Files</b>.</li>
+</ol>
+<p class="then"><b>Then:</b> in step 1 of the order form, tap <b>Upload file</b> and pick the file.</p>
+<p class="tip">Does your watch sync to Strava? You can use the <a href="#strava">Strava steps</a> instead.</p>
+</section>
+
+<section class="app" id="polar">
+<h2>Polar <small>About 2 minutes</small></h2>
+<p>Polar’s app can share a picture but not a file, so use your phone’s browser:</p>
+<ol>
+<li>Go to <b>flow.polar.com</b> and log in (switch to the desktop site if the page looks cut down).</li>
+<li>Open <b>Diary</b>, then the session.</li>
+<li>Tap <b>Export</b> → <b>GPX</b>.</li>
+</ol>
+<p class="then"><b>Then:</b> in step 1 of the order form, tap <b>Upload file</b> and pick it from <b>Downloads</b>.</p>
+</section>
+
+<section class="app" id="other">
+<h2>Any other app or watch</h2>
+<ol>
+<li>Open the activity and look for <b>Export</b>, <b>Download</b> or <b>Share file</b>, often under <b>⋯</b>.</li>
+<li>Save the file to your phone. <b>GPX, FIT, TCX or KML</b> all work, and so does a Garmin zip.</li>
+</ol>
+<p class="then"><b>Then:</b> in step 1 of the order form, tap <b>Upload file</b> and pick the file.</p>
+<p class="tip">Only have a public link? Paste it in the order form and we’ll check whether we can use it.</p>
+</section>
+
+<section class="app" id="upload">
+<h2>Finding the file on your phone</h2>
+<p>When you tap <b>Upload file</b>, your phone opens its file picker. On iPhone tap <b>Browse</b> and look in <b>Downloads</b> (in iCloud Drive or On My iPhone). On Android it’s in <b>Downloads</b>.</p>
+</section>
+
+<section class="app" id="days">
+<h2>Trip over several days?</h2>
+<p>Send every day. Links: paste one per line. Files: select them all at once. We join them into one piece, with a marker for each night’s stop.</p>
+</section>
+
+<section class="app" id="later">
+<h2>Send it after you order</h2>
+<p>Tap <b>Can’t do it now? Order now, send it later</b> in step 1. After checkout, reply to your order email with the file attached (or a link). We start your 3D model when it arrives, and you approve it before we make anything.</p>
+</section>
+
+<section class="app" id="none">
+<h2>No GPS file at all?</h2>
+<p>No problem. In step 1 tap <b>No GPS file</b>, pick a famous route or type the trail and your dates, and we’ll trace it. A screenshot of your map helps: reply to your order email with it.</p>
+</section>
+
+<a class="back" href="/#step1">Back to your order</a>
+<script>
+(function(){var i=document.getElementById('sv'),o=document.getElementById('sv-out');if(!i)return;
+function show(){var v=i.value,m=v.match(/strava\.com\/activities\/(\d+)/i);
+ if(!v.trim()){o.textContent='We’ll turn it into your download link.';return}
+ if(!m){o.innerHTML=/strava\.app\.link/i.test(v)?'That’s a short link. Open it in your browser, then copy the address it lands on and paste that here.':'That doesn’t look like a Strava activity link.';return}
+ var u='https://www.strava.com/activities/'+m[1]+'/export_gpx';
+ o.innerHTML='Your download link:<br><b>'+u+'</b><br><button type="button" id="sv-copy">Copy</button>';
+ document.getElementById('sv-copy').onclick=function(){var b=this;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){b.textContent='Copied'},function(){b.textContent='Press and hold the link to copy it'})}}
+i.addEventListener('input',show);})();
+</script>

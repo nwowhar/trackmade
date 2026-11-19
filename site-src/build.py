@@ -54,7 +54,7 @@ footer{{font-size:13px;color:var(--muted);padding:0 0 40px;display:flex;flex-wra
 <main>
 {body}
 </main>
-<footer><a href="/">Shop</a><a href="/#contact">Contact</a><a href="/shipping-returns.html">Shipping &amp; returns</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><span>© 2026 TrackMade</span></footer>
+<footer><a href="/">Shop</a><a href="/how-to.html">How to send your track</a><a href="/#contact">Contact</a><a href="/shipping-returns.html">Shipping &amp; returns</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><span>© 2026 TrackMade</span></footer>
 '''
 if not demo:
     import re, glob
